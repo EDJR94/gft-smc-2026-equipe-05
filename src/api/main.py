@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 import src.core.config # this loads env variables
 from src.agents.orchestrator import ThesisMonitorOrchestrator
-from src.data.repository import get_thesis_by_ticker
 
 app = FastAPI(title="SMC Thesis Monitor API")
 
@@ -22,12 +21,8 @@ async def analyze_news(request: AnalyzeRequest):
     """
     Direct endpoint for synchronous testing from Streamlit.
     """
-    thesis = get_thesis_by_ticker(request.ticker)
-    if not thesis:
-        raise HTTPException(status_code=404, detail=f"Thesis for {request.ticker} not found in repository.")
-    
     try:
-        result = orchestrator.process_news(request.news_text, cached_thesis=thesis)
+        result = orchestrator.process_news(request.news_text, ticker_hint=request.ticker)
         return {"status": "success", "result": result.model_dump() if result else None}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -40,16 +35,12 @@ async def auto_analyze_news(request: AutoAnalyzeRequest):
     """
     Endpoint that uses Google Search to find news automatically before analyzing.
     """
-    thesis = get_thesis_by_ticker(request.ticker)
-    if not thesis:
-        raise HTTPException(status_code=404, detail=f"Thesis for {request.ticker} not found in repository.")
-    
     try:
         # 1. Fetch latest news via Grounding
         news_text = orchestrator.fetch_latest_news(request.ticker)
         
         # 2. Process the found news
-        result = orchestrator.process_news(news_text, cached_thesis=thesis)
+        result = orchestrator.process_news(news_text, ticker_hint=request.ticker)
         
         return {
             "status": "success", 
@@ -86,14 +77,8 @@ async def pubsub_push(request: Request):
     if not ticker or not news_text:
         raise HTTPException(status_code=400, detail="Bad Request: payload must contain 'ticker' and 'news_text'")
         
-    thesis = get_thesis_by_ticker(ticker)
-    if not thesis:
-        # Return 200 so Pub/Sub doesn't retry infinitely for a missing ticker
-        print(f"Ticker {ticker} not monitored. Ignoring.")
-        return {"status": "ignored", "reason": "Ticker not monitored"}
-        
     try:
-        result = orchestrator.process_news(news_text, cached_thesis=thesis)
+        result = orchestrator.process_news(news_text, ticker_hint=ticker)
         if result:
             print(f"[ALERTA GERADO] {ticker} - Severidade: {result.severity}")
             # Em um cenário de produção completo, aqui dispararíamos o alerta 

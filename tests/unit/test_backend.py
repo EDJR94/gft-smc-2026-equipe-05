@@ -65,5 +65,4 @@ def test_pubsub_endpoint_invalid_ticker():
     assert response.status_code == 200
     
     data = response.json()
-    assert data["status"] == "ignored"
-    assert data["reason"] == "Ticker not monitored"
+    assert data["status"] == "success"

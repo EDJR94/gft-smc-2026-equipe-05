@@ -6,9 +6,9 @@ from google.adk.agents.llm_agent import Agent
 from google.adk.runners import InMemoryRunner
 from google.genai import types
 
-from src.core.models import TriageResult, DivergenceAlert, InvestmentThesis
-from src.agents.prompts import TRIAGE_AGENT_INSTRUCTION, ANALYST_AGENT_INSTRUCTION
-
+from src.core.models import TriageResult, DivergenceAlert
+from src.agents.prompts import TRIAGE_AGENT_INSTRUCTION, INVESTIGATOR_AGENT_INSTRUCTION, ANALYST_AGENT_INSTRUCTION
+from src.data.rag_repository import rag_db
 
 def _run_agent(agent: Agent, message: str) -> str:
     """Runs an ADK agent synchronously and returns the last text response."""
@@ -19,10 +19,6 @@ def _run_agent(agent: Agent, message: str) -> str:
         loop = None
         
     if loop and loop.is_running():
-        # This is a hacky way to run async code synchronously when a loop is already running.
-        # But wait, better yet, the ADK runner provides a synchronous API for running!
-        # Actually `runner.run()` is a sync generator, but `create_session` is async.
-        # The safest way is to run it in a new thread, or just use asyncio.run in a thread.
         import nest_asyncio
         nest_asyncio.apply()
         session = loop.run_until_complete(
@@ -46,7 +42,6 @@ def _run_agent(agent: Agent, message: str) -> str:
 
 def _parse_json_response(raw: str, model_class):
     """Extracts a JSON block from LLM text and parses it into a Pydantic model."""
-    # Strip markdown code fences if present
     text = raw
     if "```json" in text:
         text = text.split("```json")[1].split("```")[0]
@@ -61,6 +56,11 @@ class ThesisMonitorOrchestrator:
             model="gemini-2.5-flash",
             name="TriageAgent",
             instruction=TRIAGE_AGENT_INSTRUCTION,
+        )
+        self.investigator_agent = Agent(
+            model="gemini-2.5-flash",
+            name="InvestigatorAgent",
+            instruction=INVESTIGATOR_AGENT_INSTRUCTION,
         )
         self.analyst_agent = Agent(
             model="gemini-2.5-pro",
@@ -86,11 +86,9 @@ class ThesisMonitorOrchestrator:
             print(f"Erro na busca automática: {e}")
             return f"Erro ao buscar notícias para {ticker}."
 
-    def process_news(
-        self, news_text: str, cached_thesis: Optional[InvestmentThesis] = None
-    ) -> Optional[DivergenceAlert]:
+    def process_news(self, news_text: str, ticker_hint: Optional[str] = None) -> Optional[DivergenceAlert]:
         """
-        Orchestrates the multi-agent workflow.
+        Orchestrates the multi-agent RAG workflow.
         Returns a DivergenceAlert if news is material and a thesis exists, otherwise None.
         """
         # --- Agente 1: Triage ---
@@ -104,27 +102,58 @@ NEWS:
 """
         raw_triage = _run_agent(self.triage_agent, triage_prompt)
         triage_result = _parse_json_response(raw_triage, TriageResult)
-        print(f"    -> Ticker={triage_result.ticker}, Material={triage_result.is_material}")
+        
+        # Use hint if triage failed to find ticker
+        final_ticker = triage_result.ticker or ticker_hint
+        print(f"    -> Ticker={final_ticker}, Material={triage_result.is_material}")
 
         if not triage_result.is_material:
             print("[-] Notícia descartada: sem materialidade financeira.")
             return None
 
-        if not cached_thesis:
-            print(f"[-] Ticker '{triage_result.ticker}' sem tese cadastrada. Coverage Filter ativado.")
+        if not final_ticker:
+            print("[-] Ticker não encontrado. Abortando fluxo.")
             return None
 
+        # --- Agente 2: Investigator (Query Expansion) ---
+        print(f"[+] Agente 2: Investigador gerando query de busca para o RAG...")
+        investigator_prompt = f"TICKER: {final_ticker}\nNEWS:\n{news_text}"
+        search_query = _run_agent(self.investigator_agent, investigator_prompt).strip().strip('"').strip("'")
+        print(f"    -> Query Gerada: '{search_query}'")
+        
+        # --- Busca no ChromaDB ---
+        print(f"[+] RAG: Buscando contextos no ChromaDB para '{final_ticker}'...")
+        rag_results = rag_db.search_thesis(ticker=final_ticker, query=search_query, top_k=4)
+        
+        if not rag_results:
+            print(f"[-] Nenhuma tese ou contexto encontrado para {final_ticker} no banco vetorial.")
+            # We can still proceed without context or abort. Let's provide empty context.
+            rag_context = "NENHUMA TESE CADASTRADA ENCONTRADA."
+        else:
+            rag_context_list = []
+            for i, r in enumerate(rag_results):
+                source = r['metadata'].get('source', 'Unknown')
+                rag_context_list.append(f"--- CHUNK {i+1} (Source: {source}) ---\n{r['content']}")
+            rag_context = "\n\n".join(rag_context_list)
+            print(f"    -> Recuperados {len(rag_results)} chunks de contexto.")
+
         # --- Agente 3: Analyst ---
-        print(f"[+] Agente 3: Analisando divergência para {cached_thesis.ticker}...")
+        print(f"[+] Agente 3: Analisando divergência para {final_ticker}...")
         analyst_prompt = f"""
-Analyze the following news against the investment thesis and respond ONLY with a JSON object matching this schema:
+Analyze the following news against the retrieved thesis chunks and respond ONLY with a JSON object matching this schema:
 {json.dumps(DivergenceAlert.model_json_schema(), indent=2)}
 
 INCOMING NEWS:
 {news_text}
 
-INVESTMENT THESIS FOR {cached_thesis.ticker} ({cached_thesis.company_name}):
-{cached_thesis.model_dump_json(indent=2)}
+RETRIEVED THESIS CONTEXT FOR {final_ticker}:
+{rag_context}
 """
         raw_analysis = _run_agent(self.analyst_agent, analyst_prompt)
-        return _parse_json_response(raw_analysis, DivergenceAlert)
+        
+        # O Analyst pode retornar o ticker que ele processou
+        result = _parse_json_response(raw_analysis, DivergenceAlert)
+        if not result.ticker:
+            result.ticker = final_ticker
+            
+        return result
