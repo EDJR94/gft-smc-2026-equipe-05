@@ -53,11 +53,28 @@ O sistema ingere (ou coleta autonomamente via Google Search) o fluxo de notícia
 
 ![Arquitetura da Solução](docs/arquitetura-referencia.png)
 
+### Fluxo Multi-Agentes (Agentic RAG)
+
+```mermaid
+graph TD
+    A[Notícia / Fato Relevante] --> B[Agente 1: Triagem]
+    B -->|Irrelevante| Z[Descartado]
+    B -->|Material| C(Agente 2: Investigador)
+    
+    C -->|Gera Search Query| D[(ChromaDB: Banco Vetorial)]
+    
+    D -->|Recupera Contexto da Tese| E[Agente 3: Analista Líder]
+    A --> E
+    
+    E -->|Gera Diagnóstico| F{Alerta de Divergência}
+    F --> G[Workstation UI]
+```
+
 **Descrição do fluxo:** A aplicação segue princípios de Clean Architecture. 
-1. `src/frontend/app.py`: Interface de Workstation (Streamlit) envia notícias via requisição REST.
-2. `src/api/main.py`: Gateway FastAPI recebe o payload e despacha.
-3. `src/agents/orchestrator.py`: O "cérebro" utilizando o Google ADK coordena Agentes Especializados (Triagem e Divergência) chamando a LLM (Vertex AI).
-4. `src/data/repository.py`: Repositório Mock de Teses simulando um BD interno.
+1. `src/frontend/app.py`: Interface de Workstation (Streamlit) envia notícias para análise.
+2. `src/api/main.py`: Gateway FastAPI recebe o payload e orquestra a chamada.
+3. `src/agents/orchestrator.py`: O "cérebro" utilizando o Google ADK coordena Agentes Especializados (Triagem, Investigador, Analista) consumindo Gemini 2.5 Flash e Pro.
+4. `src/data/rag_repository.py`: Repositório RAG utilizando `ChromaDB` para indexação vetorial e recuperação inteligente de chunks dos PDFs/Mock Theses.
 
 ---
 
