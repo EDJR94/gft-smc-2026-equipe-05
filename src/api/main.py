@@ -17,7 +17,7 @@ class AnalyzeRequest(BaseModel):
     news_text: str
 
 @app.post("/analyze")
-async def analyze_news(request: AnalyzeRequest):
+def analyze_news(request: AnalyzeRequest):
     """
     Direct endpoint for synchronous testing from Streamlit.
     """
@@ -31,7 +31,7 @@ class AutoAnalyzeRequest(BaseModel):
     ticker: str
 
 @app.post("/auto-analyze")
-async def auto_analyze_news(request: AutoAnalyzeRequest):
+def auto_analyze_news(request: AutoAnalyzeRequest):
     """
     Endpoint that uses Google Search to find news automatically before analyzing.
     """
