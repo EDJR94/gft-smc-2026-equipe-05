@@ -1,0 +1,46 @@
+{
+  "test_cases": [
+    {
+      "id": "TC001",
+      "ticker": "PETR4",
+      "description": "Quebra de Tese Crítica - Retenção de Dividendos",
+      "news_text": "O Conselho de Administração da Petrobras decidiu reter 100% dos dividendos extraordinários para investimentos em eólicas offshore, alterando a política de distribuição.",
+      "expected_severity": ["MUITO_ALTO", "ALTO"]
+    },
+    {
+      "id": "TC002",
+      "ticker": "WEGE3",
+      "description": "M&A Transformacional - Compra Regal",
+      "news_text": "A WEG adquiriu a divisão de motores industriais da Regal Rexnord por US$ 400 milhões, com pagamento via alavancagem.",
+      "expected_severity": ["ALTO", "MEDIO"]
+    },
+    {
+      "id": "TC003",
+      "ticker": "ITUB4",
+      "description": "Confirmação - Balanço Forte",
+      "news_text": "O Itaú reportou lucro líquido recorrente com ROE de 21.5% e inadimplência perfeitamente sob controle.",
+      "expected_severity": ["NEUTRO", "BAIXO"]
+    },
+    {
+      "id": "TC004",
+      "ticker": "VALE3",
+      "description": "Ruído - Governança",
+      "news_text": "Rumores indicam pressão do governo para emplacar nome no Conselho de Administração da Vale nas próximas eleições.",
+      "expected_severity": ["MEDIO", "ALTO"]
+    },
+    {
+      "id": "TC005",
+      "ticker": "ITUB4",
+      "description": "Risco de Capital - Aumento de PDD",
+      "news_text": "Itaú anuncia aumento extraordinário nas provisões de devedores duvidosos (PDD) devido a deterioração macroeconômica, impactando o ROE.",
+      "expected_severity": ["ALTO", "MEDIO"]
+    },
+    {
+      "id": "TC006",
+      "ticker": "WEGE3",
+      "description": "Fator Macroeconômico - Queda Cobre",
+      "news_text": "O preço do cobre despencou globalmente, o que deve beneficiar estruturalmente as margens da fabricante catarinense no próximo trimestre.",
+      "expected_severity": ["NEUTRO", "BAIXO"]
+    }
+  ]
+}

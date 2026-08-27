@@ -1,0 +1,12 @@
+google-adk
+google-cloud-storage
+google-cloud-pubsub
+google-cloud-firestore
+pydantic
+streamlit
+python-dotenv
+fastapi==0.141.1
+uvicorn==0.52.4
+nest_asyncio
+requests==2.34.2
+streamlit==1.62.0
