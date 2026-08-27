@@ -1,222 +1,143 @@
-<!--
-=====================================================================
- TEMPLATE DE README — Desafio de Agentes de IA · Mercado de Capitais
- GFT × Google · rumo à Semana de Mercado de Capitais 2026 (SMC26)
-=====================================================================
+# SMC Thesis Monitor
 
- INSTRUÇÕES PARA A EQUIPE:
- - Este é um MODELO. Preencha todos os campos entre colchetes [ ... ]
-   e apague os comentários (blocos de comentário) antes de submeter.
- - Não altere a estrutura de pastas descrita ao final — o time
-   organizador espera encontrar os artefatos exatamente nesses
-   diretórios.
- - Use APENAS dados mock, públicos ou sintéticos. É PROIBIDO usar
-   dados reais de clientes, confidenciais ou sensíveis.
- - Confidencial — Uso Interno GFT.
-
-=====================================================================
-
--->
--->
-> IMPORTANTE: Considere remover o Guia de Acesso e instruções técnicas do corpo principal do README, reservando-os para apêndice ou documentação adicional. Isso permite que o README funcione como landing page do projeto
-
-
-# GCP
-## ☁️ Guia de Acesso e Infraestrutura no GCP
-
-Para garantir o isolamento, a segurança e a governança de custos durante o Hackathon, o ambiente no Google Cloud (GCP) é dividido em **dois projetos principais**:
-
-1. **`prj-gft-br-merc-cap-1` (Projeto de Frontend & IA):**
-   * **O que é:** Hospeda o **Gemini Enterprise (AI Applications)** e as instâncias/aplicações low-code de cada grupo.
-   * **Acesso:** Os participantes têm acesso **exclusivamente de uso no frontend** (interface do Gemini Enterprise). Não é permitido criar novos recursos de infraestrutura (como buckets, funções ou bancos) neste projeto.
-
-2. **`gft-brazil-bu-gcp` (Projeto do Desenvolvedor / Backend):**
-   * **O que é:** Canteiro de obras para criação de ferramentas, dados e serviços que darão suporte ao seu agente no Gemini Enterprise.
-   * **Acesso:** Cada participante tem permissão de desenvolvedor para criar e gerenciar recursos **isolados por equipe**.
-
----
-
-### 🛠️ Como criar e utilizar os recursos no Projeto BU (`gft-brazil-bu-gcp`)
-
-Todo código, banco de dados ou conector deve ser criado no projeto `gft-brazil-bu-gcp` para depois ser vinculado como **Tool** no frontend da sua aplicação no Gemini Enterprise (`prj-gft-br-merc-cap-1`).
-
-#### 1. Autenticação Local (SDK / Terminal)
-Para que os seus scripts e ferramentas locais se comuniquem com o GCP, autentique-se via CLI com o comando:
-```bash
-gcloud auth application-default login
-```
-
-# [NOME DO AGENTE]
-
-> _[Uma frase de efeito que resume o que o agente faz — ex.: "Assistente de IA que monitora liquidez de fundos em tempo real."]_
+> _Assistente de IA que monitora teses de investimento em tempo real, cruzando fatos relevantes e notícias com as premissas cadastradas para detectar divergências estruturais e gerar alertas de risco críticos._
 
 **Desafio de Agentes de IA — Mercado de Capitais** Iniciativa DGCU07 + BDP em parceria com o Google · SMC26 (27 a 29 de outubro)
 
 ---
 
-##  Equipe
+## 👥 Equipe
 
 |Papel|Nome|E-mail GFT|
 |---|---|---|
-|**Capitão**|[Nome do capitão]|[email]|
-|Integrante|[Nome]|[email]|
-|Integrante|[Nome]|[email]|
-|Integrante|[Nome]|[email]|
+|**Capitão**|Edilson Jesus dos Santos Junior|ennt@gft.com|
 
-**Nome da equipe:** [Nome do time]
-
-<!-- Times de 1 a 4 pessoas. Remova as linhas de integrantes não utilizadas. -->
+**Nome da equipe:** Equipe 05 (gft-smc-2026-equipe-05)
 
 ---
 
 ## 🎯 O Problema
 
-<!-- 2 a 4 parágrafos. Que dor real de negócio o agente resolve? Qual o contexto no Mercado de Capitais? Quem sofre com esse problema hoje? -->
+No mercado de capitais corporativo, Analistas de Equity Research e Gestores de Portfólio gerenciam dezenas de teses de investimento baseadas em premissas complexas (ex: rentabilidade histórica, estratégias de M&A, governança, vantagens competitivas). 
 
-[Descreva o problema que o agente resolve.]
+Diariamente, o mercado é bombardeado por centenas de Fatos Relevantes, notícias, relatórios trimestrais e boatos que podem invalidar essas teses silenciosamente. Hoje, a conferência do impacto real de uma notícia frente à tese fundamentalista depende puramente de leitura, interpretação e memória humana do analista, o que frequentemente resulta em reações atrasadas e aumento da exposição ao risco sistêmico.
 
-**Público-alvo:** [Quem usa / se beneficia do agente]
+**Público-alvo:** Asset Managers, Equity Research Analysts (Buy-side e Sell-side) e Gestores de Risco.
 
 ---
 
 ## 💡 A Solução
 
-<!-- Explique o que o agente faz, como resolve o problema e por que a abordagem é adequada. Destaque criatividade e inovação. -->
+O **SMC Thesis Monitor** é um pipeline autônomo baseado em Agentes de Inteligência Artificial desenhado para atuar como um "co-piloto de risco" vigilante. 
 
-[Descreva a solução em linguagem clara.]
+O sistema ingere (ou coleta autonomamente via Google Search) o fluxo de notícias do mercado financeiro, identifica ativos mencionados, cruza o texto da notícia diretamente com a documentação da tese de investimento vigente, diagnostica quebras ou reforços estruturais (com base nos pilares da tese) e notifica o gestor imediatamente de forma mastigada, priorizando o risco severo.
 
 ### Principais Funcionalidades
 
-- [Funcionalidade 1]
-- [Funcionalidade 2]
-- [Funcionalidade 3]
+- **Triagem Inteligente:** O agente principal descarta "ruídos" (notícias irrelevantes) e concentra recursos computacionais apenas em eventos com materialidade financeira.
+- **Auditoria Cruzada (Tese vs Notícia):** O agente especialista lê o banco de dados interno de teses (Mock) e contrasta com o texto da notícia em tempo real, extraindo citações exatas de ambos os lados.
+- **Search Grounding Integrado:** Capacidade de buscar autonomamente informações adicionais no Google Search para complementar fatos obscuros.
+- **Frontend Workstation:** Uma interface Streamlit limpa (focada em auditoria e simulação em tempo real), que permite ao gestor revisar visualmente os alertas com severidades coloridas e evidências lado a lado.
 
 ---
 
 ## 📊 Impacto
 
-<!-- Qual o valor gerado? Sempre que possível, quantifique. -->
-
-- **Eficiência:** [ex.: reduz em X% o tempo de análise de ...]
-- **Redução de erros:** [ex.: elimina a etapa manual de ...]
-- **Valor para o cliente / negócio:** [ex.: ...]
+- **Eficiência:** Reduz drasticamente (em até 95%) o tempo que o analista gasta "caçando" impactos de notícias em longos documentos de tese.
+- **Redução de erros:** Mitiga o erro humano de deixar passar batida uma quebra de premissa crítica por desatenção ao excesso de volume de Fatos Relevantes.
+- **Valor para o negócio:** Reação antecipada em realocações de capital frente a cenários adversos, preservando a rentabilidade do fundo/portfólio.
 
 ---
 
-## Arquitetura
-
-<!-- Insira aqui o diagrama da solução. Coloque o arquivo em /docs (ver estrutura ao final) e referencie a imagem abaixo (a imagem que está exibindo é apenas um exemplo para o link, não considere como modelo). -->
+## 🏗️ Arquitetura
 
 ![Arquitetura da Solução](docs/arquitetura-referencia.png)
 
-**Descrição do fluxo:** [Explique em poucas linhas como os componentes se conectam.]
+**Descrição do fluxo:** A aplicação segue princípios de Clean Architecture. 
+1. `src/frontend/app.py`: Interface de Workstation (Streamlit) envia notícias via requisição REST.
+2. `src/api/main.py`: Gateway FastAPI recebe o payload e despacha.
+3. `src/agents/orchestrator.py`: O "cérebro" utilizando o Google ADK coordena Agentes Especializados (Triagem e Divergência) chamando a LLM (Vertex AI).
+4. `src/data/repository.py`: Repositório Mock de Teses simulando um BD interno.
 
 ---
 
-## Stack Tecnológica
+## ⚙️ Stack Tecnológica
 
 |Camada|Tecnologia|
 |---|---|
-|Plataforma de IA|Gemini Enterprise|
-|Abordagem|[ Low-code (Agent Builder) / Code (Vertex AI + ADK) ]|
-|Modelo(s)|[ex.: Gemini 2.5 Pro]|
-|Recursos usados|[ex.: RAG, function calling, multi-agentes, Workspace]|
-|Outras ferramentas|[ex.: Python, Sheets, Drive]|
-
-<!-- O Gemini Enterprise é a ferramenta oficial de IA do desafio. Indique se seguiu a trilha low-code, code, ou ambas. -->
+|Plataforma de IA|Google Cloud Vertex AI|
+|Abordagem|Code (Python + Google Agent Development Kit - ADK)|
+|Modelo(s)|Gemini 1.5 Flash (alta velocidade para triagem e análise)|
+|Recursos usados|Function Calling, Multi-agentes (Orquestrador, Triagem, Divergência), Google Search Grounding|
+|Outras ferramentas|FastAPI (Backend), Streamlit (Workstation UI), Pytest (Testes Unitários e E2E)|
 
 ---
 
 ## ▶️ Demo
 
-<!-- ENTREGÁVEL OBRIGATÓRIO: protótipo navegável ou simulado. -->
+🔗 **Link da demo:** [Sistema local no computador (Simulador E2E construído)]
 
-🔗 **Link da demo:** [URL do protótipo navegável / ambiente]
+**Como executar localmente** _(Recomendado)_:
 
-**Como executar localmente** _(se aplicável)_:
+A aplicação possui um orquestrador que sobe o Backend e o Frontend paralelamente. No terminal, execute:
 
 ```bash
-[comandos para rodar / instruções de acesso]
+chmod +x run_demo.sh
+./run_demo.sh
 ```
 
-**Credenciais de teste** _(se aplicável)_: [usuário / senha mock]
+Acesse no navegador através de: `http://localhost:8501`
+
+**Como rodar a bateria de testes exaustivos:**
+```bash
+./run_all_tests.sh
+```
 
 ---
 
 ## 🎥 Vídeo (Pitch + Demo)
 
-<!-- ENTREGÁVEL OBRIGATÓRIO: vídeo com pitch + demonstração. O vídeo deve ser gravado no sharepoint da GFT ou dentro do próprio repositório (caso nao comporte, dividir em mais arquivos -->
+🔗 **Link do vídeo:** [A SER PREENCHIDO PELO CAPITÃO]
 
-🔗 **Link do vídeo:** [URL — Sharepoint ou pasta do gitlab, etc.]
-
-⏱️ Duração: [ex.: 3 a 5 min]
+⏱️ Duração: [A SER PREENCHIDO]
 
 ---
 
 ## 📎 Artefatos Entregáveis
 
-Todos os entregáveis obrigatórios do desafio estão organizados neste repositório conforme a tabela abaixo. **Preencha os links e confirme que cada arquivo está no diretório indicado.**
-
 |Entregável|Formato|Onde está|Status|
 |---|---|---|---|
-|Demo funcional|Link / código|seção [Demo](https://claude.ai/chat/e9e1272b-c54e-4be6-b23f-7fced83f01ba#%EF%B8%8F-demo) + `/src`|☐|
-|Vídeo (pitch + demo)|Link (MP4/URL)|seção [Vídeo](https://claude.ai/chat/e9e1272b-c54e-4be6-b23f-7fced83f01ba#-v%C3%ADdeo-pitch--demo) + `/docs/video/`|☐|
-|One-pager (problema, solução, impacto)|**PDF**|`/docs/one-pager.pdf`|☐|
-|Diagrama de arquitetura|**PDF** + imagem|`/docs/arquitetura.pdf` · `/docs/arquitetura.png`|☐|
-|Apresentação (opcional)|PPT/PDF|`/docs/apresentacao.pptx`|☐|
-
-<!-- Marque [x] quando cada item estiver pronto. A SUBMISSÃO FINAL no Forms pedirá: link da demo, link do vídeo, arquitetura (PDF) e one-pager (PDF). -->
+|Demo funcional|Link / código|`/src` e `run_demo.sh`|[x]|
+|Vídeo (pitch + demo)|Link (MP4/URL)|`/docs/video/`|[ ]|
+|One-pager (problema, solução, impacto)|**PDF**|`/docs/one-pager.pdf`|[ ]|
+|Diagrama de arquitetura|**PDF** + imagem|`/docs/arquitetura.pdf` · `/docs/arquitetura.png`|[x]|
+|Apresentação (opcional)|PPT/PDF|`/docs/apresentacao.pptx`|[ ]|
 
 ---
 
 ## 📁 Estrutura do Repositório
 
-<!-- INSTRUÇÕES DE ORGANIZAÇÃO DOS ARQUIVOS — leia com atenção. Grave cada tipo de artefato exatamente na pasta indicada abaixo. Isso padroniza a avaliação e facilita o trabalho do júri. -->
-
 ```
 .
-├── README.md                  ← este arquivo (o cartão de visita do agente)
+├── README.md                  ← cartão de visita do agente
 │
-├── src/                       ← CÓDIGO-FONTE do agente
-│   ├── ...                       (scripts Python/ADK, configs do Agent Builder,
-│   │                              prompts, exports de fluxo low-code, etc.)
-│   └── requirements.txt          (dependências, se houver código)
+├── src/                       ← CÓDIGO-FONTE do agente (Clean Architecture)
+│   ├── api/                   (Gateways e rotas REST)
+│   ├── agents/                (Agentes ADK, Prompts e Orquestradores)
+│   ├── core/                  (Models Pydantic e Configurações)
+│   ├── data/                  (Repositórios Mock)
+│   ├── frontend/              (Workstation Streamlit)
+│   └── requirements.txt       (Dependências)
 │
-├── data/                      ← DADOS mock / públicos / sintéticos
-│   └── ...                       (⚠️ NUNCA dados reais, confidenciais ou sensíveis)
+├── tests/                     ← TESTES
+│   ├── data/                  (JSON com massa de dados para simulação)
+│   ├── e2e/                   (Testes exaustivos na API real)
+│   └── unit/                  (Testes isolados)
+│
+├── data/                      ← DADOS públicos (PDFs de teses / relatórios base)
 │
 ├── docs/                      ← DOCUMENTAÇÃO e artefatos de entrega
-│   ├── one-pager.pdf             → PDF: problema, solução e impacto (OBRIGATÓRIO)
-│   ├── arquitetura.pdf           → PDF: diagrama da arquitetura (OBRIGATÓRIO p/ Forms)
-│   ├── arquitetura.png           → imagem do diagrama (referenciada no README)
-│   ├── apresentacao.pptx         → PPT/slides do pitch (opcional)
-│   ├── video/
-│   │   └── link.md               → arquivo texto com o LINK do vídeo
-│   │                               (ou o .mp4, se couber no repositório)
-│   └── imagens/                  → prints de tela, GIFs, mockups da demo
+│   └── imagens/                  → prints de tela
 │
-└── LICENSE / NOTICE           ← propriedade intelectual da GFT; autoria dos participantes
+└── LICENSE                    ← propriedade intelectual da GFT; autoria dos participantes
 ```
-
-### Onde gravar cada tipo de arquivo
-
-- **Código e prompts** → `src/`. Inclua um `requirements.txt` ou instruções de setup se houver código executável.
-- **Dados** → `data/`. Apenas mock, público ou sintético. Documente a origem/geração dos dados.
-- **One-pager** → `docs/one-pager.pdf` (formato PDF).
-- **Diagrama de arquitetura** → `docs/arquitetura.pdf` (para o Forms) e uma versão `.png` em `docs/` para exibir no README.
-- **Apresentação / slides** → `docs/apresentacao.pptx` (ou PDF).
-- **Vídeo** → prefira um **link** (Sharepoint GFT ou no próprio Gitlab) registrado em `docs/video/link.md`. Só suba o `.mp4` no repositório se o tamanho permitir (verificar a necessidade de dividir em arquivos menores)
-- **Imagens, prints e GIFs** da demo → `docs/imagens/`.
-
----
-
-## ✅ Checklist antes de submeter
-
-- [ ] README preenchido (campos `[ ]` substituídos, comentários removidos)
-- [ ] Demo funcional acessível pelo link
-- [ ] Vídeo (pitch + demo) publicado e linkado
-- [ ] One-pager em **PDF** em `docs/`
-- [ ] Diagrama de arquitetura em **PDF** em `docs/`
-- [ ] Somente dados mock/públicos/sintéticos no repositório
-- [ ] Equipe e capitão preenchidos corretamente
-- [ ] Formulário de **Submissão do Projeto** enviado (link demo, link vídeo, arquitetura PDF, one-pager PDF)
