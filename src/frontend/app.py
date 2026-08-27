@@ -3,6 +3,7 @@ import json
 import time
 import requests
 import streamlit as st
+import concurrent.futures
 
 API_URL = os.environ.get("BACKEND_URL", "http://localhost:8080/analyze")
 
@@ -125,20 +126,17 @@ if simular:
     progress_bar = st.progress(0, text="Iniciando fluxo de eventos do Cloud Storage...")
     total = len(massa_testes)
     
-    for idx, cenario in enumerate(massa_testes):
+    def fetch_and_process(idx, cenario):
         ticker = cenario["ticker"]
         news_text = cenario["news_text"]
         desc = cenario["description"]
-        
-        progress_bar.progress((idx + 1) / total, text=f"📥 [{idx+1}/{total}] Ingerindo fato relevante de **{ticker}** ({desc})...")
-        
         try:
             res = requests.post(API_URL, json={"ticker": ticker, "news_text": news_text}, timeout=60)
             if res.status_code == 200:
                 data = res.json()
                 if data.get("status") == "success" and data.get("result"):
                     result = data["result"]
-                    st.session_state["alerts_history"].append({
+                    return {
                         "id": idx,
                         "ticker": ticker,
                         "description": desc,
@@ -147,10 +145,27 @@ if simular:
                         "rationale": result.get("rationale", ""),
                         "affected_pillar": result.get("affected_pillar", "Pilar Geral"),
                         "quotes_from_thesis": result.get("quotes_from_thesis", [])
-                    })
+                    }
         except Exception as e:
-            st.error(f"Erro ao processar {ticker}: {str(e)}")
-            
+            return {"error": f"Erro ao processar {ticker}: {str(e)}"}
+        return None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(10, total)) as executor:
+        futures = {executor.submit(fetch_and_process, idx, cenario): idx for idx, cenario in enumerate(massa_testes)}
+        completed = 0
+        for future in concurrent.futures.as_completed(futures):
+            completed += 1
+            progress_bar.progress(completed / total, text=f"📥 Processando eventos em paralelo... [{completed}/{total}]")
+            res = future.result()
+            if res:
+                if "error" in res:
+                    st.error(res["error"])
+                else:
+                    st.session_state["alerts_history"].append(res)
+                    
+    # Reordenar para manter a ordem da massa de testes
+    st.session_state["alerts_history"].sort(key=lambda x: x["id"])
+    
     progress_bar.empty()
     st.success(f"✨ Simulação concluída! {len(st.session_state['alerts_history'])} eventos processados pelo Agente.")
 
