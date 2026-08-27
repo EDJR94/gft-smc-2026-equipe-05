@@ -146,8 +146,7 @@ if simular:
                         "severity": result.get("severity", "NEUTRO"),
                         "rationale": result.get("rationale", ""),
                         "affected_pillar": result.get("affected_pillar", "Pilar Geral"),
-                        "quotes_from_thesis": result.get("quotes_from_thesis", []),
-                        "quotes_from_news": result.get("quotes_from_news", [])
+                        "quotes_from_thesis": result.get("quotes_from_thesis", [])
                     })
         except Exception as e:
             st.error(f"Erro ao processar {ticker}: {str(e)}")
@@ -245,7 +244,3 @@ elif st.session_state["current_view"] == "details":
         with col_fato:
             st.markdown("**📰 Notícia / Fato Relevante (Mercado)**")
             st.warning(alert['news_text'])
-            if alert['quotes_from_news']:
-                st.caption("Fatos extraídos pelo agente:")
-                for q in alert['quotes_from_news']:
-                    st.markdown(f"> *\"{q}\"*")

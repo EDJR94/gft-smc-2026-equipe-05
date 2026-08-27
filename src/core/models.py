@@ -24,7 +24,6 @@ class DivergenceAlert(BaseModel):
     severity: SeverityLevel = Field(..., description="Classification of the divergence risk")
     affected_pillar: Optional[str] = Field(None, description="The specific thesis pillar that was affected, if any")
     rationale: str = Field(..., description="Agent's reasoning for why this news impacts or confirms the thesis")
-    quotes_from_news: List[str] = Field(default_factory=list, description="Exact quotes from the news that prove the point")
     quotes_from_thesis: List[str] = Field(default_factory=list, description="Exact quotes from the thesis document that prove the point")
 
 class TriageResult(BaseModel):
