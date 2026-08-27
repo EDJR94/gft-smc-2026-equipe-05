@@ -1,60 +1,89 @@
 import os
-import streamlit as st
+import json
+import time
 import requests
+import streamlit as st
 
 API_URL = os.environ.get("BACKEND_URL", "http://localhost:8080/analyze")
 
 st.set_page_config(
     page_title="SMC Thesis Monitor",
-    page_icon="🤖",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Severity Cards
+# Estilo Clean & Minimalista
 st.markdown("""
 <style>
-.severity-card {
-    padding: 1.5rem;
-    border-radius: 8px;
-    color: white;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-.severity-MUITO_ALTO { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
-.severity-ALTO { background: linear-gradient(135deg, #f57c00, #e65100); }
-.severity-MEDIO { background: linear-gradient(135deg, #fbc02d, #f57f17); color: #333; }
-.severity-BAIXO { background: linear-gradient(135deg, #1976d2, #0d47a1); }
-.severity-NEUTRO { background: linear-gradient(135deg, #388e3c, #1b5e20); }
-.metric-box {
-    background-color: #f0f2f6;
-    padding: 10px;
-    border-radius: 5px;
-    border-left: 5px solid #000;
-    margin-top: 10px;
-}
+    /* Estilo geral */
+    .main {
+        background-color: #f8f9fa;
+    }
+    .stApp {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* Card de Alerta */
+    .alert-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .alert-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    /* Badges de Severidade */
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .badge-MUITO_ALTO { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+    .badge-ALTO { background-color: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
+    .badge-MEDIO { background-color: #fef9c3; color: #ca8a04; border: 1px solid #fef08a; }
+    .badge-BAIXO { background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+    .badge-NEUTRO { background-color: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+
+    .ticker-badge {
+        background-color: #f1f5f9;
+        color: #334155;
+        font-weight: 700;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        border: 1px solid #cbd5e1;
+    }
+
+    /* Blocos de Comparação lado a lado */
+    .compare-box {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        height: 100%;
+    }
+    .compare-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar
-with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/120px-Google_%22G%22_logo.svg.png", width=50)
-    st.title("Ativos Monitorados")
-    st.markdown("---")
-    st.markdown("🟢 **PETR4** - Petróleo Brasileiro S.A.")
-    st.markdown("🟢 **WEGE3** - WEG S.A.")
-    st.markdown("🟢 **ITUB4** - Itaú Unibanco")
-    st.markdown("🟢 **VALE3** - Vale S.A.")
-    st.markdown("---")
-    st.caption("powered by Google Agent Development Kit (ADK) & Vertex AI")
-
-# Main Content
-st.title("Caixa de Entrada de Alertas - SMC")
-st.markdown("Simule a chegada de um Fato Relevante ou Notícia do mercado para cruzar com a Tese de Investimentos vigente.")
-
-import json
-
-# Carregar massa de testes
+# Carregar Massa de Testes
 massa_path = os.path.join(os.path.dirname(__file__), "..", "..", "tests", "data", "massa_testes.json")
 try:
     with open(massa_path, "r", encoding="utf-8") as f:
@@ -62,110 +91,124 @@ try:
 except Exception:
     massa_testes = []
 
-with st.expander("📝 Injetar Nova Notícia (Manual, Google ou Mock)", expanded=True):
-    # ABA 1: Manual ou Automático
-    st.markdown("### Busca Livre ou Inserção Manual")
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        ticker_manual = st.selectbox("Ticker Afetado", ["PETR4", "WEGE3", "ITUB4", "VALE3"], key="ticker_manual")
-    with col2:
-        news_text_manual = st.text_area("Texto da Notícia / Fato Relevante da CVM", height=100, placeholder="Cole aqui o texto do fato relevante ou use a busca automática...")
+# Sidebar Simples com Carteira Monitorada
+with st.sidebar:
+    st.markdown("### 🏢 Carteira Monitorada")
+    st.caption("Ativos acompanhados pelo Agente:")
+    st.markdown("""
+    - **PETR4** · *Petrobras*
+    - **WEGE3** · *WEG S.A.*
+    - **ITUB4** · *Itaú Unibanco*
+    - **VALE3** · *Vale S.A.*
+    """)
+    st.divider()
+    st.caption("Powered by **Google ADK & Vertex AI**")
+
+# Cabeçalho Principal
+st.title("⚡ SMC Thesis Monitor")
+st.markdown("Monitoramento autônomo de teses de investimento em tempo real via **Google ADK & Vertex AI**.")
+
+st.markdown("")
+
+# Sessão de Controle / Simulação
+col_btn, col_info = st.columns([1, 2])
+
+with col_btn:
+    simular = st.button("🚀 Simular Ingestão de Notícias (Cloud Storage / PubSub)", type="primary", use_container_width=True)
+
+with col_info:
+    if st.button("🧹 Limpar Painel", use_container_width=False):
+        st.session_state["alerts_history"] = []
+        st.rerun()
+
+# Inicializar estado se necessário
+if "alerts_history" not in st.session_state:
+    st.session_state["alerts_history"] = []
+
+# Execução da Simulação
+if simular:
+    st.session_state["alerts_history"] = []
+    progress_bar = st.progress(0, text="Iniciando fluxo de eventos do Cloud Storage...")
     
-    bcol1, bcol2 = st.columns(2)
-    with bcol1:
-        submit_manual = st.button("Processar Texto Colado", type="secondary", use_container_width=True)
-    with bcol2:
-        submit_auto = st.button("🤖 Pesquisar no Google e Analisar (Auto)", type="primary", use_container_width=True)
-
-    st.markdown("---")
+    total = len(massa_testes)
     
-    # ABA 2: Cenários Mockados
-    st.markdown("### 🧪 Simular Casos de Teste da Banca")
-    if massa_testes:
-        cenarios_dict = {f"{c['ticker']} - {c['description']}": c for c in massa_testes}
-        cenario_selecionado = st.selectbox("Escolha um cenário histórico para simular:", list(cenarios_dict.keys()))
-        submit_mock = st.button("Executar Cenário Mockado", type="primary", use_container_width=True)
-    else:
-        submit_mock = False
-        st.warning("Massa de testes não encontrada.")
+    for idx, cenario in enumerate(massa_testes):
+        ticker = cenario["ticker"]
+        news_text = cenario["news_text"]
+        desc = cenario["description"]
+        
+        progress_bar.progress((idx + 1) / total, text=f"📥 [{idx+1}/{total}] Ingerindo fato relevante de **{ticker}** ({desc})...")
+        
+        try:
+            res = requests.post(API_URL, json={"ticker": ticker, "news_text": news_text}, timeout=60)
+            if res.status_code == 200:
+                data = res.json()
+                if data.get("status") == "success" and data.get("result"):
+                    result = data["result"]
+                    st.session_state["alerts_history"].append({
+                        "ticker": ticker,
+                        "description": desc,
+                        "news_text": news_text,
+                        "severity": result.get("severity", "NEUTRO"),
+                        "rationale": result.get("rationale", ""),
+                        "affected_pillar": result.get("affected_pillar", "Pilar Geral"),
+                        "quotes_from_thesis": result.get("quotes_from_thesis", []),
+                        "quotes_from_news": result.get("quotes_from_news", [])
+                    })
+        except Exception as e:
+            st.error(f"Erro ao processar {ticker}: {str(e)}")
+            
+    progress_bar.empty()
+    st.success(f"✨ Simulação concluída! {len(st.session_state['alerts_history'])} eventos processados pelo Agente.")
 
-st.markdown("---")
-st.subheader("📬 Inbox de Alertas")
+st.divider()
 
-if submit_manual or submit_auto or submit_mock:
-    is_auto = submit_auto
-    
-    # Determine the payload based on which button was clicked
-    if submit_mock:
-        selected_case = cenarios_dict[cenario_selecionado]
-        ticker = selected_case["ticker"]
-        news_text = selected_case["news_text"]
-        msg = f"Agentes simulando cenário mockado para {ticker}..."
-    else:
-        ticker = ticker_manual
-        news_text = news_text_manual
-        msg = f"Agente Autônomo buscando notícias para {ticker} no Google..." if is_auto else f"Agentes analisando cruzamento de tese para {ticker}..."
+# Exibição dos Alertas
+st.subheader("📬 Feed de Divergências e Alertas")
 
-    if not is_auto and not news_text.strip():
-        st.warning("Por favor, insira o texto da notícia para a análise manual.")
-    else:
-        msg = f"Agente Autônomo buscando notícias para {ticker} no Google..." if is_auto else f"Agentes analisando cruzamento de tese para {ticker}..."
-        with st.spinner(msg):
-            try:
-                if is_auto:
-                    # Rota de Auto-Busca via Google Search Grounding
-                    url = API_URL.replace("/analyze", "/auto-analyze")
-                    response = requests.post(url, json={"ticker": ticker})
-                else:
-                    response = requests.post(API_URL, json={"ticker": ticker, "news_text": news_text})
-                    
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    if is_auto and data.get("news_found"):
-                        st.info("📰 **Notícia Encontrada pelo Agente no Google:**\n\n" + data["news_found"])
-                        
-                    if data.get("status") == "success" and data.get("result"):
-                        res = data["result"]
-                        sev = res.get("severity", "NEUTRO")
-                        
-                        # Render Severity Card
-                        st.markdown(f"""
-                        <div class="severity-card severity-{sev}">
-                            <h2 style="margin-top:0; color:inherit;">Alerta de Divergência: {ticker}</h2>
-                            <h4 style="color:inherit; opacity:0.9;">Severidade: {sev.replace('_', ' ')}</h4>
-                            <p style="font-size:1.1em; line-height:1.5;">{res.get('rationale')}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        
-                        # Render Side-by-Side Analysis
-                        st.markdown("### Evidências da Divergência")
-                        col_tese, col_fato = st.columns(2)
-                        
-                        with col_tese:
-                            st.markdown("#### 📜 Pilar da Tese Afetado")
-                            st.info(f"**{res.get('affected_pillar', 'Nenhum pilar específico mapeado')}**")
-                            for quote in res.get('quotes_from_thesis', []):
-                                st.markdown(f"> *\"{quote}\"*")
-                                
-                        with col_fato:
-                            st.markdown("#### 📰 Fato Novo Observado")
-                            for quote in res.get('quotes_from_news', []):
-                                st.error(f"> *\"{quote}\"*")
-                                
-                        # Action Buttons
-                        st.markdown("<br>", unsafe_allow_html=True)
-                        b1, b2, b3 = st.columns([1,1,3])
-                        b1.button("✅ Ciente (Arquivar)")
-                        b2.button("⚠️ Revisar Tese (Criar Task)")
-                        
-                    else:
-                        st.info("A notícia foi processada, mas não gerou alertas críticos (filtrada pelo agente).")
-                else:
-                    st.error(f"Erro na API: {response.text}")
-            except requests.exceptions.ConnectionError:
-                st.error("Falha de conexão com o Backend. O servidor FastAPI (main.py) está rodando na porta 8080?")
+alerts = st.session_state.get("alerts_history", [])
 
-# Show empty inbox if no submission
-if not submit_manual and not submit_auto and not submit_mock:
-    st.caption("Nenhum alerta pendente no momento. As notícias processadas aparecerão aqui se divergirem da tese.")
+if not alerts:
+    st.info("Nenhuma notícia processada ainda. Clique no botão **'🚀 Simular Ingestão de Notícias'** acima para iniciar o fluxo.")
+else:
+    for idx, alert in enumerate(alerts):
+        sev = alert["severity"]
+        sev_label = sev.replace("_", " ")
+        
+        with st.container():
+            st.markdown(f"""
+            <div class="alert-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div>
+                        <span class="ticker-badge">{alert['ticker']}</span>
+                        <span style="font-weight: 600; font-size: 1.1rem; margin-left: 0.5rem; color: #1e293b;">{alert['description']}</span>
+                    </div>
+                    <span class="badge badge-{sev}">{sev_label}</span>
+                </div>
+                <div style="font-size: 1rem; color: #334155; margin-bottom: 1.25rem; line-height: 1.6;">
+                    <b>Diagnóstico do Agente:</b> {alert['rationale']}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Comparativo Tese vs Fato Relevante para checagem manual
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**📜 Tese de Investimento (Cadastrada)**")
+                st.info(f"**Pilar Impactado:** {alert['affected_pillar']}")
+                if alert['quotes_from_thesis']:
+                    st.caption("Trecho da Tese:")
+                    for q in alert['quotes_from_thesis']:
+                        st.markdown(f"> *\"{q}\"*")
+            
+            with col2:
+                st.markdown("**📰 Fato Relevante Recebido**")
+                st.warning(alert['news_text'])
+                if alert['quotes_from_news']:
+                    st.caption("Evidência Extraída pelo Agente:")
+                    for q in alert['quotes_from_news']:
+                        st.markdown(f"> *\"{q}\"*")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.divider()
