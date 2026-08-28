@@ -51,7 +51,7 @@ O sistema ingere (ou coleta autonomamente via Google Search) o fluxo de notícia
 
 ## 🏗️ Arquitetura
 
-![Arquitetura da Solução](docs/arquitetura-referencia.png)
+![Arquitetura da Solução GCP](docs/imagens/smc_thesis_monitor.png)
 
 ### Fluxo Multi-Agentes (Agentic RAG)
 
