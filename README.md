@@ -84,7 +84,7 @@ graph TD
 |---|---|
 |Plataforma de IA|Google Cloud Vertex AI|
 |Abordagem|Code (Python + Google Agent Development Kit - ADK)|
-|Modelo(s)|Gemini 1.5 Flash (alta velocidade para triagem e análise)|
+|Modelo(s)|Gemini 2.5 Flash e 2.5 Pro (Agentes de Triagem, Investigação e Análise)|
 |Recursos usados|Function Calling, Multi-agentes (Orquestrador, Triagem, Divergência), Google Search Grounding|
 |Outras ferramentas|FastAPI (Backend), Streamlit (Workstation UI), Pytest (Testes Unitários e E2E)|
 
@@ -99,15 +99,15 @@ graph TD
 A aplicação possui um orquestrador que sobe o Backend e o Frontend paralelamente. No terminal, execute:
 
 ```bash
-chmod +x run_demo.sh
-./run_demo.sh
+chmod +x scripts/run_demo.sh
+./scripts/run_demo.sh
 ```
 
 Acesse no navegador através de: `http://localhost:8501`
 
 **Como rodar a bateria de testes exaustivos:**
 ```bash
-./run_all_tests.sh
+./scripts/run_all_tests.sh
 ```
 
 ---
@@ -124,7 +124,7 @@ Acesse no navegador através de: `http://localhost:8501`
 
 |Entregável|Formato|Onde está|Status|
 |---|---|---|---|
-|Demo funcional|Link / código|`/src` e `run_demo.sh`|[x]|
+|Demo funcional|Link / código|`/src` e `scripts/run_demo.sh`|[x]|
 |Vídeo (pitch + demo)|Link (MP4/URL)|`/docs/video/`|[ ]|
 |One-pager (problema, solução, impacto)|**PDF**|`/docs/one-pager.pdf`|[ ]|
 |Diagrama de arquitetura|**PDF** + imagem|`/docs/arquitetura.pdf` · `/docs/arquitetura.png`|[x]|
@@ -143,18 +143,25 @@ Acesse no navegador através de: `http://localhost:8501`
 │   ├── agents/                (Agentes ADK, Prompts e Orquestradores)
 │   ├── core/                  (Models Pydantic e Configurações)
 │   ├── data/                  (Repositórios Mock)
-│   ├── frontend/              (Workstation Streamlit)
-│   └── requirements.txt       (Dependências)
+│   └── frontend/              (Workstation Streamlit)
+│
+├── scripts/                   ← SCRIPTS utilitários
+│   ├── run_demo.sh            (Sobe o backend e frontend)
+│   ├── run_all_tests.sh       (Testes unitários e E2E)
+│   └── deploy_gcp.sh          (Deploy serverless no Cloud Run)
 │
 ├── tests/                     ← TESTES
 │   ├── data/                  (JSON com massa de dados para simulação)
 │   ├── e2e/                   (Testes exaustivos na API real)
 │   └── unit/                  (Testes isolados)
 │
-├── data/                      ← DADOS públicos (PDFs de teses / relatórios base)
+├── data/                      ← DADOS públicos (Mock Theses em .txt e .pdf)
 │
 ├── docs/                      ← DOCUMENTAÇÃO e artefatos de entrega
-│   └── imagens/                  → prints de tela
+│   └── imagens/                  → diagramas e prints de tela
+│
+├── requirements.txt           ← Dependências do Python
+├── .gitignore                 ← Arquivos ignorados pelo Git
 │
 └── LICENSE                    ← propriedade intelectual da GFT; autoria dos participantes
 ```

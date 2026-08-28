@@ -8,7 +8,7 @@ import concurrent.futures
 API_URL = os.environ.get("BACKEND_URL", "http://localhost:8080/analyze")
 
 st.set_page_config(
-    page_title="SMC Thesis Monitor",
+    page_title="Thesis Monitor",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -177,7 +177,7 @@ alerts = st.session_state["alerts_history"]
 # VISÃO: FEED DE ALERTAS (MASTER)
 # ==========================================
 if st.session_state["current_view"] == "feed":
-    st.subheader("📬 Feed de Divergências e Alertas")
+    st.subheader("📬 Alertas")
     
     if not alerts:
         st.info("Nenhum Alerta no momento. Clique em 'Simular' para gerar eventos.")
