@@ -1,0 +1,17 @@
+.gcloudignore
+.git
+.gitignore
+.chroma_db/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+env/
+.DS_Store
+.DS_Store?
+._*
+.vscode/
+.idea/

@@ -7,6 +7,18 @@ import concurrent.futures
 
 API_URL = os.environ.get("BACKEND_URL", "http://localhost:8080/analyze")
 
+def get_auth_headers(target_url: str) -> dict:
+    headers = {"Content-Type": "application/json"}
+    try:
+        from google.auth.transport.requests import Request
+        import google.oauth2.id_token
+        auth_req = Request()
+        token = google.oauth2.id_token.fetch_id_token(auth_req, target_url)
+        headers["Authorization"] = f"Bearer {token}"
+    except Exception:
+        pass
+    return headers
+
 st.set_page_config(
     page_title="Thesis Monitor",
     page_icon="⚡",
@@ -93,8 +105,8 @@ except Exception:
     massa_testes = []
 
 # Cabeçalho Principal
-st.title("⚡ SMC Thesis Monitor")
-st.markdown("Monitoramento autônomo de teses de investimento em tempo real via **Google ADK & Vertex AI**.")
+st.title("⚡ TAMY - Monitor de Teses e Notícias")
+st.markdown("Monitoramento autônomo de teses de investimento em tempo real.")
 
 st.markdown("")
 
@@ -131,7 +143,8 @@ if simular:
         news_text = cenario["news_text"]
         desc = cenario["description"]
         try:
-            res = requests.post(API_URL, json={"ticker": ticker, "news_text": news_text}, timeout=60)
+            headers = get_auth_headers(API_URL)
+            res = requests.post(API_URL, json={"ticker": ticker, "news_text": news_text}, headers=headers, timeout=60)
             if res.status_code == 200:
                 data = res.json()
                 if data.get("status") == "success" and data.get("result"):
@@ -244,18 +257,19 @@ elif st.session_state["current_view"] == "details":
         </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("### 🔎 Evidências para Auditoria Manual")
+        st.markdown("### 🔎 Evidências para Auditoria")
         
         col_tese, col_fato = st.columns(2)
         
         with col_tese:
-            st.markdown("**📜 Tese de Investimento (Base)**")
+            st.markdown("**📜 Tese de Investimento**")
             st.info(f"**Pilar Impactado:** {alert['affected_pillar']}")
             if alert['quotes_from_thesis']:
                 st.caption("Trechos extraídos da tese:")
                 for q in alert['quotes_from_thesis']:
-                    st.markdown(f"> *\"{q}\"*")
+                    clean_q = q.replace("&nbsp;", " ").replace("\n", " ").strip()
+                    st.markdown(f"> *\"{clean_q}\"*")
         
         with col_fato:
-            st.markdown("**📰 Notícia / Fato Relevante (Mercado)**")
+            st.markdown("**📰 Notícia / Fato Relevante**")
             st.warning(alert['news_text'])

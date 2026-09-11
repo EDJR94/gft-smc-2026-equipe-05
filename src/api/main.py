@@ -4,13 +4,31 @@ import base64
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 
-import src.core.config # this loads env variables
+import src.core.config  # this loads env variables
 from src.agents.orchestrator import ThesisMonitorOrchestrator
 
 app = FastAPI(title="SMC Thesis Monitor API")
 
-# Initialize orchestrator globally
-orchestrator = ThesisMonitorOrchestrator()
+# Lazy loading of orchestrator to ensure immediate port binding on container startup
+_orchestrator = None
+
+def get_orchestrator() -> ThesisMonitorOrchestrator:
+    global _orchestrator
+    if _orchestrator is None:
+        _orchestrator = ThesisMonitorOrchestrator()
+    return _orchestrator
+
+class OrchestratorProxy:
+    def __getattr__(self, name):
+        return getattr(get_orchestrator(), name)
+
+# Backwards compatibility proxy
+orchestrator = OrchestratorProxy()
+
+@app.get("/")
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "smc-backend"}
 
 class AnalyzeRequest(BaseModel):
     ticker: str
@@ -22,7 +40,8 @@ def analyze_news(request: AnalyzeRequest):
     Direct endpoint for synchronous testing from Streamlit.
     """
     try:
-        result = orchestrator.process_news(request.news_text, ticker_hint=request.ticker)
+        instance = get_orchestrator()
+        result = instance.process_news(request.news_text, ticker_hint=request.ticker)
         return {"status": "success", "result": result.model_dump() if result else None}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -36,11 +55,12 @@ def auto_analyze_news(request: AutoAnalyzeRequest):
     Endpoint that uses Google Search to find news automatically before analyzing.
     """
     try:
+        instance = get_orchestrator()
         # 1. Fetch latest news via Grounding
-        news_text = orchestrator.fetch_latest_news(request.ticker)
+        news_text = instance.fetch_latest_news(request.ticker)
         
         # 2. Process the found news
-        result = orchestrator.process_news(news_text, ticker_hint=request.ticker)
+        result = instance.process_news(news_text, ticker_hint=request.ticker)
         
         return {
             "status": "success", 
@@ -78,7 +98,8 @@ async def pubsub_push(request: Request):
         raise HTTPException(status_code=400, detail="Bad Request: payload must contain 'ticker' and 'news_text'")
         
     try:
-        result = orchestrator.process_news(news_text, ticker_hint=ticker)
+        instance = get_orchestrator()
+        result = instance.process_news(news_text, ticker_hint=ticker)
         if result:
             print(f"[ALERTA GERADO] {ticker} - Severidade: {result.severity}")
             # Em um cenário de produção completo, aqui dispararíamos o alerta 
@@ -94,4 +115,5 @@ if __name__ == "__main__":
     import uvicorn
     # Default port for Cloud Run is 8080
     port = int(os.environ.get("PORT", 8080))
-    uvicorn.run("src.api.main:app", host="0.0.0.0", port=port, reload=True)
+    is_dev = os.environ.get("ENV", "production").lower() == "development"
+    uvicorn.run(app, host="0.0.0.0", port=port, reload=is_dev)
