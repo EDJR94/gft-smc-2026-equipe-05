@@ -43,9 +43,10 @@ gcloud run deploy smc-backend \
   --memory 2Gi \
   --timeout 300s \
   --cpu-boost \
+  --min-instances 1 \
   --allow-unauthenticated \
   --command "python,-m,src.api.main" \
-  --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=$REGION,DATA_STORE_ID=data-store-neomedallion_1789142566980
+  --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=$REGION,DATA_STORE_ID=data-store-neomedallion_1789142566980,GCS_BUCKET_NAME=$BUCKET_NAME
 
 BACKEND_BASE_URL=$(gcloud run services describe smc-backend --region $REGION --format 'value(status.url)')
 BACKEND_URL="${BACKEND_BASE_URL}/analyze"

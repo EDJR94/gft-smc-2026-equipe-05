@@ -1,8 +1,9 @@
-# SMC Thesis Monitor
+# TAMY - SMC Thesis Monitor
 
 > _Assistente de IA que monitora teses de investimento em tempo real, cruzando fatos relevantes e notícias com as premissas cadastradas para detectar divergências estruturais e gerar alertas de risco críticos._
 
-**Desafio de Agentes de IA — Mercado de Capitais** Iniciativa DGCU07 + BDP em parceria com o Google · SMC26 (27 a 29 de outubro)
+**Desafio de Agentes de IA - Mercado de Capitais** Iniciativa DGCU07 + BDP em parceria com o Google · SMC26 (27 a 29 de outubro)
+
 
 ---
 
@@ -34,10 +35,13 @@ O sistema ingere (ou coleta autonomamente via Google Search) o fluxo de notícia
 
 ### Principais Funcionalidades
 
-- **Triagem Inteligente:** O agente principal descarta "ruídos" (notícias irrelevantes) e concentra recursos computacionais apenas em eventos com materialidade financeira.
-- **Auditoria Cruzada (Tese vs Notícia):** O agente especialista lê o banco de dados interno de teses (Mock) e contrasta com o texto da notícia em tempo real, extraindo citações exatas de ambos os lados.
-- **Search Grounding Integrado:** Capacidade de buscar autonomamente informações adicionais no Google Search para complementar fatos obscuros.
-- **Frontend Workstation:** Uma interface Streamlit limpa (focada em auditoria e simulação em tempo real), que permite ao gestor revisar visualmente os alertas com severidades coloridas e evidências lado a lado.
+- **Triagem Inteligente (Agente 1 - Gemini 2.5 Flash):** Descarta ruídos corporativos e concentra processamento apenas em eventos com materialidade financeira real.
+- **Query Generation & RAG Híbrido (Agente 2 - Gemini 2.5 Flash):** Formula queries semânticas altamente específicas para recuperação vetorial no **Google Cloud Vertex AI Search**, com fallback local automático no **ChromaDB**.
+- **Auditoria Cruzada e Diagnóstico (Agente 3 - Gemini 2.5 Pro):** Contrasta a notícia com as premissas da tese vigente, extraindo citações literais de ambos os lados e determinando o nível de risco.
+- **Search Grounding com Links Reais:** Capacidade de buscar autonomamente notícias e Fatos Relevantes na B3 via Google Search Grounding, extraindo os links oficiais e domínios das fontes jornalísticas (ex: InfoMoney, Valor Econômico, Investing.com) para auditoria e conferência direta pelo analista.
+- **Persistência em Nuvem (Google Cloud Firestore):** Registro perene e rastreável de todos os diagnósticos gerados, permitindo histórico compartilhado entre toda a equipe de research.
+- **Parecer do Analista (Human-in-the-Loop):** O analista/gestor valida ou descarta o diagnóstico do agente diretamente na tela, gerando uma trilha de auditoria formal para compliance CVM.
+- **Frontend Workstation:** Interface Streamlit moderna organizada em abas: **Simulação em Lote** (processamento paralelo com filtros) e **Auditoria Live** (para testar qualquer ativo ou notícia avulsa sob demanda).
 
 ---
 
@@ -58,23 +62,29 @@ O sistema ingere (ou coleta autonomamente via Google Search) o fluxo de notícia
 ```mermaid
 graph TD
     A[Notícia / Fato Relevante] --> B[Agente 1: Triagem]
-    B -->|Irrelevante| Z[Descartado]
-    B -->|Material| C(Agente 2: Investigador)
+    B -->|Irrelevante| Z[Descartado / Ruído]
+    B -->|Material| C[Agente 2: Investigador]
     
-    C -->|Gera Search Query| D[(ChromaDB: Banco Vetorial)]
+    C -->|Gera Search Query| D[(Vertex AI Search: Data Store)]
     
     D -->|Recupera Contexto da Tese| E[Agente 3: Analista Líder]
     A --> E
     
     E -->|Gera Diagnóstico| F{Alerta de Divergência}
-    F --> G[Workstation UI]
+    F -->|Persiste Registro| H[(Google Cloud Firestore)]
+    F -->|Exibe Alerta| G[Workstation UI]
+    
+    G -->|Parecer do Analista / HITL| I[Aprovação / Descarte Humano]
+    I -->|Atualiza Status do Alerta| H
 ```
 
+
 **Descrição do fluxo:** A aplicação segue princípios de Clean Architecture. 
-1. `src/frontend/app.py`: Interface de Workstation (Streamlit) envia notícias para análise.
+1. `src/frontend/app.py`: Interface de Workstation (Streamlit) com abas para simulação e auditoria live, incluindo governança Human-in-the-Loop.
 2. `src/api/main.py`: Gateway FastAPI recebe o payload e orquestra a chamada.
 3. `src/agents/orchestrator.py`: O "cérebro" utilizando o Google ADK coordena Agentes Especializados (Triagem, Investigador, Analista) consumindo Gemini 2.5 Flash e Pro.
-4. `src/data/rag_repository.py`: Repositório RAG utilizando `ChromaDB` para indexação vetorial e recuperação inteligente de chunks dos PDFs/Mock Theses.
+4. `src/data/rag_repository.py`: Repositório RAG utilizando `Vertex AI Search` (Google Cloud Discovery Engine) com fallback automático no ChromaDB.
+5. `src/data/firestore_repository.py`: Camada de persistência e governança regulatória no `Google Cloud Firestore` (com backend resiliente em `Google Cloud Storage` no GCP para persistência serverless contínua, histórico de alertas e pareceres Human-in-the-Loop).
 
 ---
 
@@ -85,27 +95,40 @@ graph TD
 |Plataforma de IA|Google Cloud Vertex AI|
 |Abordagem|Code (Python + Google Agent Development Kit - ADK)|
 |Modelo(s)|Gemini 2.5 Flash e 2.5 Pro (Agentes de Triagem, Investigação e Análise)|
+|RAG & Busca|Google Cloud Vertex AI Search (Data Store não estruturado) + ChromaDB (Fallback local)|
+|Persistência & Auditoria|Google Cloud Firestore / Cloud Storage (Histórico de alertas e decisões Human-in-the-Loop)|
 |Recursos usados|Function Calling, Multi-agentes (Orquestrador, Triagem, Divergência), Google Search Grounding|
 |Outras ferramentas|FastAPI (Backend), Streamlit (Workstation UI), Pytest (Testes Unitários e E2E)|
+
 
 ---
 
 ## ▶️ Demo
 
-🔗 **Link da demo:** [Sistema local no computador (Simulador E2E construído)]
+A aplicação pode ser avaliada de duas formas:
 
-**Como executar localmente** _(Recomendado)_:
+### 1. Acesso Online no Google Cloud Run (Ambiente GCP)
+Os serviços estão deployados no Google Cloud Run (`us-central1`). Devido às políticas de segurança corporativas do GCP (`gft-brazil-bu-gcp`), os serviços operam em modo autenticado. Para que os jurados e membros da banca acessem a Workstation online com suas credenciais do projeto:
 
-A aplicação possui um orquestrador que sobe o Backend e o Frontend paralelamente. No terminal, execute:
+```bash
+# Conecta a Workstation do Cloud Run na sua porta local
+gcloud run services proxy smc-frontend --region us-central1 --port 8501
+```
+
+Acesse imediatamente no navegador em: `http://localhost:8501`
+
+### 2. Execução Local Autônoma (Recomendado para Testes)
+Caso prefira rodar a stack completa na máquina local sem dependências de rede, utilize o script automatizado que sobe o Backend FastAPI e o Frontend Streamlit em paralelo:
 
 ```bash
 chmod +x scripts/run_demo.sh
 ./scripts/run_demo.sh
 ```
 
-Acesse no navegador através de: `http://localhost:8501`
+Acesse no navegador em: `http://localhost:8501`
 
-**Como rodar a bateria de testes exaustivos:**
+### 3. Bateria de Testes Automatizados
+Para executar todos os testes unitários e end-to-end (E2E):
 ```bash
 ./scripts/run_all_tests.sh
 ```
@@ -124,11 +147,12 @@ Acesse no navegador através de: `http://localhost:8501`
 
 |Entregável|Formato|Onde está|Status|
 |---|---|---|---|
-|Demo funcional|Link / código|`/src` e `scripts/run_demo.sh`|[x]|
+|Demo funcional|Link / código|Cloud Run (via proxy) ou local via `scripts/run_demo.sh`|[x]|
 |Vídeo (pitch + demo)|Link (MP4/URL)|`/docs/video/`|[ ]|
-|One-pager (problema, solução, impacto)|**PDF**|`/docs/one-pager.pdf`|[ ]|
-|Diagrama de arquitetura|**PDF** + imagem|`/docs/arquitetura.pdf` · `/docs/arquitetura.png`|[x]|
+|One-pager (problema, solução, impacto)|**PDF**|`/docs/one-pager.pdf`|[x]|
+|Diagrama de arquitetura|Imagem / PNG|`/docs/arquitetura.png` · `/docs/imagens/smc_thesis_monitor.png`|[x]|
 |Apresentação (opcional)|PPT/PDF|`/docs/apresentacao.pptx`|[ ]|
+
 
 ---
 
@@ -142,8 +166,9 @@ Acesse no navegador através de: `http://localhost:8501`
 │   ├── api/                   (Gateways e rotas REST)
 │   ├── agents/                (Agentes ADK, Prompts e Orquestradores)
 │   ├── core/                  (Models Pydantic e Configurações)
-│   ├── data/                  (Repositórios Mock)
+│   ├── data/                  (Repositórios RAG Vetorial e Cloud Firestore)
 │   └── frontend/              (Workstation Streamlit)
+
 │
 ├── scripts/                   ← SCRIPTS utilitários
 │   ├── run_demo.sh            (Sobe o backend e frontend)

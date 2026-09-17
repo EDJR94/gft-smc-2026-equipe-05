@@ -41,6 +41,48 @@ class RAGRepository:
             separators=["\n\n", "\n", ".", " ", ""]
         )
 
+        # Auto-ingestão defensiva em background: não bloqueia o startup nem causa cold start timeouts
+        try:
+            if self.collection.count() == 0:
+                import threading
+                print("[RAG] Base local do ChromaDB vazia. Disparando indexação defensiva em background...")
+                t = threading.Thread(target=self.ingest_documents, daemon=True)
+                t.start()
+        except Exception as e:
+            print(f"[RAG] Aviso ao inicializar base local do ChromaDB: {e}")
+
+    def get_covered_tickers(self) -> List[str]:
+        """Retorna lista ordenada de tickers com teses cadastradas no repositório."""
+        covered = set()
+        if os.path.exists(DATA_DIR):
+            for fname in os.listdir(DATA_DIR):
+                if fname.startswith("."):
+                    continue
+                parts = fname.split("_")
+                if parts and len(parts[0]) >= 2:
+                    covered.add(parts[0].upper())
+        try:
+            if self.collection.count() > 0:
+                metas = self.collection.get(include=["metadatas"])
+                if metas and metas.get("metadatas"):
+                    for m in metas["metadatas"]:
+                        if m and m.get("ticker") and m["ticker"] not in ("UNKNOWN", ""):
+                            covered.add(m["ticker"].upper())
+        except Exception:
+            pass
+        return sorted(list(covered))
+
+    def has_thesis(self, ticker: str) -> bool:
+        """Verifica se existe tese de investimento cadastrada para o ticker."""
+        if not ticker or ticker == "UNKNOWN":
+            return False
+        clean_ticker = ticker.strip().upper()
+        if clean_ticker in self.get_covered_tickers():
+            return True
+        doc = self._find_document_text("", clean_ticker)
+        return doc is not None and len(doc.strip()) > 0
+
+
     def _get_search_session(self):
         """Retorna uma sessão HTTP autenticada via Google Application Default Credentials (ADC)."""
         if self._search_session is None:

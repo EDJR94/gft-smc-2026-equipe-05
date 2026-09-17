@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>TAMY - One-Pager | GFT Hackathon SMC 2026</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 8.2pt;
+      color: #1e293b;
+      background: #fff;
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto;
+      padding: 9mm 12mm 8mm 12mm;
+      overflow: hidden;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      border-bottom: 3px solid #1a56db; padding-bottom: 5px; margin-bottom: 7px; gap: 12px;
+    }
+    .badge-hackathon {
+      display: inline-block; background: #eff6ff; color: #1a56db; border: 1px solid #bfdbfe;
+      border-radius: 4px; font-size: 6.5pt; font-weight: 600; padding: 1px 7px; margin-bottom: 2px;
+    }
+    .product-name { font-size: 19pt; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; line-height: 1.1; }
+    .product-tagline { font-size: 7.8pt; color: #475569; margin-top: 2px; max-width: 360px; }
+    .header-right { text-align: right; font-size: 7.2pt; color: #64748b; line-height: 1.5; }
+    .gft-logo { font-size: 13pt; font-weight: 800; color: #1a56db; letter-spacing: 2px; }
+
+    /* METRICS */
+    .impact-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 7px; }
+    .metric-box { border: 1px solid #e2e8f0; border-radius: 7px; padding: 5px 8px; text-align: center; background: #f8fafc; }
+    .metric-value { font-size: 15pt; font-weight: 800; color: #1a56db; line-height: 1; }
+    .metric-label { font-size: 6.5pt; color: #64748b; margin-top: 1px; line-height: 1.3; }
+
+    /* GRID */
+    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+    .card { border: 1px solid #e2e8f0; border-radius: 7px; padding: 7px 9px; background: #fff; }
+    .card-title {
+      font-size: 6.8pt; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.7px; color: #1a56db; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;
+    }
+    p, li { font-size: 7.6pt; line-height: 1.45; color: #334155; }
+    ul { padding-left: 12px; }
+    li { margin-bottom: 2px; }
+    .card-problem { background: #fef2f2; border-color: #fecaca; }
+    .card-problem .card-title { color: #b91c1c; }
+    .card-solution { background: #f0fdf4; border-color: #bbf7d0; }
+    .card-solution .card-title { color: #15803d; }
+
+    /* FLOW - two rows */
+    .flow-card { border: 1px solid #e2e8f0; border-radius: 7px; padding: 6px 9px; margin-bottom: 6px; background: #fff; }
+    .flow-inner {
+      display: grid;
+      grid-template-columns: auto auto auto auto auto auto auto auto auto;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+    }
+    /* Row 1: input → agent1 → discard */
+    /* Row 2 (indent): agent2 → search → agent3 → output */
+    .flow-row-1 { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+    .flow-row-2 { display: flex; align-items: center; gap: 4px; padding-left: 20px; }
+    .flow-step {
+      background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 5px;
+      padding: 3px 7px; font-size: 7pt; font-weight: 600; color: #1e40af;
+      white-space: nowrap; line-height: 1.3;
+    }
+    .flow-step small { font-weight: 400; font-size: 6.2pt; display: block; color: #3b82f6; }
+    .flow-arrow { font-size: 10pt; color: #93c5fd; font-weight: 700; flex-shrink: 0; }
+    .flow-down { font-size: 10pt; color: #93c5fd; font-weight: 700; margin-left: 30px; }
+    .flow-discard { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+    .flow-discard small { color: #dc2626; }
+    .flow-output { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 5px; padding: 3px 7px; white-space: nowrap; }
+    .sev { display: inline-block; border-radius: 20px; padding: 1px 5px; font-size: 6pt; font-weight: 700; margin-right: 1px; }
+    .sev-red { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .sev-orange { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .sev-yellow { background: #fefce8; color: #92400e; border: 1px solid #fef08a; }
+    .sev-green { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .flow-material { font-size: 6pt; color: #475569; margin-left: 4px; }
+
+    /* STACK */
+    .stack-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 8px; margin-top: 3px; }
+    .stack-row { display: flex; gap: 3px; align-items: baseline; line-height: 1.4; }
+    .stack-label { color: #64748b; white-space: nowrap; min-width: 70px; font-size: 6.8pt; }
+    .stack-value { color: #1e293b; font-weight: 600; font-size: 7.5pt; }
+    .arch-img { width: 100%; border-radius: 5px; border: 1px solid #e2e8f0; display: block; margin-top: 4px; }
+    .sub-section { margin-top: 6px; }
+    .sub-title { font-size: 6.8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #1a56db; margin-bottom: 3px; }
+
+    /* FOOTER */
+    .footer { border-top: 1px solid #e2e8f0; margin-top: 6px; padding-top: 5px; display: flex; justify-content: space-between; align-items: center; }
+    .footer div { font-size: 6.5pt; color: #64748b; }
+    .footer strong { color: #1e293b; }
+
+    @media print {
+      html, body { width: 210mm; height: 297mm; margin: 0; padding: 9mm 12mm 8mm 12mm; overflow: hidden; }
+      @page { size: A4; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="badge-hackathon">GFT HACKATHON SMC 2026 · EQUIPE 05</div>
+      <div class="product-name">⚡ TAMY</div>
+      <div class="product-tagline">Monitor autônomo de Teses de Investimento e Notícias de Mercado via Agentes de IA na Google Cloud</div>
+    </div>
+    <div class="header-right">
+      <div class="gft-logo">GFT</div>
+      <div>Desafio DGCU07 + BDP × Google</div>
+      <div><strong>Edilson Jesus dos Santos Junior</strong></div>
+      <div>ennt@gft.com · Outubro 2026</div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="impact-row">
+    <div class="metric-box">
+      <div class="metric-value">~95%</div>
+      <div class="metric-label">Redução no tempo de análise de impacto de notícias</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">&lt; 60s</div>
+      <div class="metric-label">Da notícia ao alerta de risco classificado e auditável</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-value">3 LLMs</div>
+      <div class="metric-label">Gemini 2.5 Flash + Pro em pipeline multi-agente</div>
+    </div>
+  </div>
+
+  <!-- PROBLEMA + SOLUÇÃO -->
+  <div class="main-grid">
+    <div class="card card-problem">
+      <div class="card-title">🎯 O Problema</div>
+      <p>Analistas de <em>Equity Research</em> e Gestores de Portfólio mantêm dezenas de teses de investimento com premissas complexas. Diariamente, centenas de Fatos Relevantes chegam simultaneamente.</p>
+      <br/>
+      <p>Detectar se uma notícia <strong>quebra ou confirma uma premissa</strong> da tese depende 100% de leitura manual e memória humana - gerando reações atrasadas e exposição ao risco sistêmico.</p>
+      <br/>
+      <ul>
+        <li>Volume imenso inviabiliza revisão manual</li>
+        <li>Quebras de tese silenciosas passam despercebidas</li>
+        <li>Reações tardias afetam diretamente a rentabilidade</li>
+      </ul>
+    </div>
+    <div class="card card-solution">
+      <div class="card-title">💡 A Solução</div>
+      <p>O <strong>TAMY</strong> é um pipeline autônomo de Agentes de IA que atua como <em>"co-piloto de risco vigilante"</em> para gestores de ativos.</p>
+      <br/>
+      <ul>
+        <li><strong>Triagem Inteligente:</strong> descarta ruídos, filtra apenas eventos com materialidade financeira real</li>
+        <li><strong>RAG Semântico:</strong> cruza a notícia com a tese via Vertex AI Search, recuperando trechos completos</li>
+        <li><strong>Diagnóstico Fundamentalista:</strong> classifica o risco em 5 níveis com rationale auditável</li>
+        <li><strong>Evidências Lado a Lado:</strong> citações exatas da tese x notícia na workstation do analista</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FLUXO MULTI-AGENTE: 2 linhas -->
+  <div class="flow-card">
+    <div class="card-title">🤖 Fluxo Multi-Agente (Agentic RAG)</div>
+    <!-- linha 1 -->
+    <div class="flow-row-1">
+      <div class="flow-step">📰 Notícia / Fato Relevante</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Agente 1 · Triagem<small>Gemini 2.5 Flash</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step flow-discard">❌ Descartado<small>Sem materialidade</small></div>
+      <div style="flex:1"></div>
+      <span class="flow-material">↓ Material</span>
+    </div>
+    <!-- linha 2 -->
+    <div class="flow-row-2">
+      <div class="flow-step">Agente 2 · Investigador<small>Query Generation (RAG)</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🔍 Vertex AI Search<small>Recupera trechos da tese</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Agente 3 · Analista Líder<small>Gemini 2.5 Pro</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-output">
+        <span class="sev sev-red">MUITO_ALTO</span><span class="sev sev-orange">ALTO</span><span class="sev sev-yellow">MÉDIO</span><span class="sev sev-green">NEUTRO</span>
+        <div style="font-size:6pt;color:#64748b;margin-top:1px;">Alerta com rationale e citação da tese</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARQUITETURA + STACK + IMPACTO + PÚBLICO -->
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-title">🏗️ Arquitetura GCP</div>
+      <img class="arch-img" src="imagens/smc_thesis_monitor.png" alt="Arquitetura GCP" />
+    </div>
+    <div class="card">
+      <div class="card-title">⚙️ Stack Tecnológica</div>
+      <div class="stack-grid">
+        <div class="stack-row"><span class="stack-label">Plataforma</span><span class="stack-value">Google Cloud Platform</span></div>
+        <div class="stack-row"><span class="stack-label">Agentes</span><span class="stack-value">Google ADK (Python)</span></div>
+        <div class="stack-row"><span class="stack-label">Modelos</span><span class="stack-value">Gemini 2.5 Flash + Pro</span></div>
+        <div class="stack-row"><span class="stack-label">RAG / Search</span><span class="stack-value">Vertex AI Search</span></div>
+        <div class="stack-row"><span class="stack-label">Backend</span><span class="stack-value">FastAPI · Cloud Run</span></div>
+        <div class="stack-row"><span class="stack-label">Frontend</span><span class="stack-value">Streamlit · Cloud Run</span></div>
+        <div class="stack-row"><span class="stack-label">Dados</span><span class="stack-value">GCS + Discovery Engine</span></div>
+        <div class="stack-row"><span class="stack-label">Mensageria</span><span class="stack-value">Cloud Pub/Sub</span></div>
+        <div class="stack-row"><span class="stack-label">Auditoria/HITL</span><span class="stack-value">Cloud Firestore</span></div>
+        <div class="stack-row"><span class="stack-label">Testes</span><span class="stack-value">Pytest (Unit + E2E)</span></div>
+      </div>
+
+      <div class="sub-section">
+        <div class="sub-title">📊 Impacto para o Negócio</div>
+        <ul>
+          <li><strong>Eficiência:</strong> elimina busca manual em PDFs extensos de teses</li>
+          <li><strong>Risco:</strong> mitiga erros humanos por excesso de volume de informação</li>
+          <li><strong>Antecipação:</strong> reação proativa antes que o mercado precifique o risco</li>
+          <li><strong>Auditabilidade:</strong> rastreabilidade completa com citação exata da tese</li>
+        </ul>
+      </div>
+      <div class="sub-section">
+        <div class="sub-title">👥 Público-Alvo</div>
+        <p>Asset Managers · Equity Research Analysts (Buy &amp; Sell-side) · Gestores de Risco</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div><strong>Repositório:</strong> gft-smc-2026-equipe-05 &nbsp;|&nbsp; <strong>Deploy:</strong> Cloud Run · us-central1</div>
+    <div style="text-align:right;"><strong>GFT Hackathon de Agentes de IA - Mercado de Capitais 2026</strong><br/>Iniciativa DGCU07 + BDP em parceria com o Google · Outubro 2026</div>
+  </div>
+
+</body>
+</html>

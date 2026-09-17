@@ -36,8 +36,7 @@ Determine the SeverityLevel based on how much the news challenges the original t
 - BAIXO: Noise or temporary setbacks.
 - NEUTRO: The news actually confirms and reinforces our thesis.
 
-Explain your rationale clearly. Provide exact, complete quotes ONLY from the retrieved thesis text to prove your point (quote whole, coherent sentences, without cutting them off with ellipsis or abbreviations).
-If the retrieved chunks do not contain enough information to judge, assume the impact based on general financial principles but state that the thesis document lacked specifics.
+Explain your rationale clearly. Provide exact, complete quotes ONLY from the retrieved thesis text to prove your point (quote whole, coherent sentences, without cutting them off with ellipsis or abbreviations). If the retrieved thesis does not mention the topic or lacks specifics, explicitly note that in the rationale, and do NOT assume a thesis breach without evidence from the text.
 
 IMPORTANTE: RESPONDA EXCLUSIVAMENTE EM PORTUGUÊS DO BRASIL.
 """

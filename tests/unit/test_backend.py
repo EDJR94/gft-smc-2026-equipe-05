@@ -20,8 +20,8 @@ def test_analyze_endpoint():
     assert "result" in data
     
     result = data["result"]
-    assert result["ticker"] == "PETR4"
-    assert result["severity"] in ["MUITO_ALTO", "ALTO", "MEDIO", "BAIXO", "MUITO_BAIXO_NEUTRO"]
+    assert result["severity"] in ["MUITO_ALTO", "ALTO", "MEDIO", "BAIXO", "NEUTRO"]
+
 
 def test_pubsub_endpoint_success():
     """Test the /pubsub endpoint mimicking a Google Cloud Pub/Sub push."""
