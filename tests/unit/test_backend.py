@@ -5,6 +5,14 @@ from src.api.main import app
 
 client = TestClient(app)
 
+def test_health_check_endpoint():
+    """Test the /health endpoint returning neomedallion-backend service."""
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["service"] == "neomedallion-backend"
+
 def test_analyze_endpoint():
     """Test the direct /analyze HTTP endpoint."""
     payload = {

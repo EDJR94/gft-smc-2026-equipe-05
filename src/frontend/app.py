@@ -31,7 +31,7 @@ def escape_markdown(text) -> str:
     return s.replace("$", r"\$")
 
 st.set_page_config(
-    page_title="Thesis Monitor",
+    page_title="TAMY - Neo Medallion",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -170,7 +170,17 @@ except Exception:
     massa_testes = []
 
 # Cabeçalho Principal
-st.title("⚡ TAMY - Monitor de Teses e Notícias")
+col_title, col_team = st.columns([3, 1])
+with col_title:
+    st.title("⚡ TAMY - Monitor de Teses e Notícias")
+with col_team:
+    st.markdown("""
+    <div style="text-align: right; padding-top: 1rem;">
+        <span style="background: #1e293b; color: #f8fafc; padding: 0.4rem 0.9rem; border-radius: 6px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.05em; display: inline-block;">
+            🏛️ EQUIPE NEO MEDALLION
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("")
 
@@ -545,9 +555,7 @@ with tab_simulacao:
 # ABA 2: AUDITORIA AVULSA (LIVE / CUSTOM NEWS)
 # ==============================================================================
 with tab_avulsa:
-    st.subheader("🧪 Testar Notícia Avulsa ao Vivo")
-    st.markdown("Submeta qualquer Fato Relevante ou utilize o **Google Search Grounding** para buscar notícias quentes na B3.")
-
+    st.subheader("🧪 Testar Notícia ao Vivo")
     col_t1, col_t2 = st.columns([1, 2])
     with col_t1:
         custom_ticker = st.text_input("Ticker do Ativo (ex: PETR4, VALE3, ITUB4, WEGE3):", value="PETR4").strip().upper()
@@ -579,7 +587,7 @@ with tab_avulsa:
                         st.warning(
                             f"⚠️ **Ativo Fora de Cobertura ({custom_ticker})**\n\n"
                             f"Nenhuma tese de investimento encontrada no repositório para o ticker **{custom_ticker}**.\n\n"
-                            f"O **SMC Thesis Monitor** audita divergências estritamente contra premissas de teses cadastradas pelo time de Equity Research.\n\n"
+                            f"O **TAMY (Neo Medallion)** audita divergências estritamente contra premissas de teses cadastradas pelo time de Equity Research.\n\n"
                             f"📌 **Ativos com Teses Cobertas:** `{cov_str}`"
                         )
                         if news_found:
@@ -642,7 +650,7 @@ with tab_avulsa:
             st.rerun()
 
     if analisar_custom and custom_news:
-        with st.spinner(f"⚡ Agente SMC analisando divergências para {custom_ticker}..."):
+        with st.spinner(f"⚡ Agente TAMY analisando divergências para {custom_ticker}..."):
             try:
                 headers = get_auth_headers(API_URL)
                 res = requests.post(API_URL, json={"ticker": custom_ticker, "news_text": custom_news}, headers=headers, timeout=60)
@@ -658,7 +666,7 @@ with tab_avulsa:
                         st.warning(
                             f"⚠️ **Ativo Fora de Cobertura ({custom_ticker})**\n\n"
                             f"Nenhuma tese de investimento encontrada no repositório para o ticker **{custom_ticker}**.\n\n"
-                            f"O **SMC Thesis Monitor** audita divergências estritamente contra premissas de teses cadastradas pelo time de Equity Research.\n\n"
+                            f"O **TAMY (Neo Medallion)** audita divergências estritamente contra premissas de teses cadastradas pelo time de Equity Research.\n\n"
                             f"📌 **Ativos com Teses Cobertas:** `{cov_str}`"
                         )
                     elif result:

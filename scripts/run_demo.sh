@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "========================================="
-echo " SMC Thesis Monitor - Demonstração Local "
-echo "========================================="
+echo "=========================================================="
+echo " TAMY - Neo Medallion Thesis Monitor - Demonstração Local "
+echo "=========================================================="
 
 # Garante que as variáveis de ambiente necessárias estão carregadas
 export PYENV_VERSION=gft_agent_smc

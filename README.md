@@ -1,4 +1,4 @@
-# TAMY - SMC Thesis Monitor
+# TAMY - Neo Medallion Thesis Monitor
 
 > _Assistente de IA que monitora teses de investimento em tempo real, cruzando fatos relevantes e notícias com as premissas cadastradas para detectar divergências estruturais e gerar alertas de risco críticos._
 
@@ -13,7 +13,7 @@
 |---|---|---|
 |**Capitão**|Edilson Jesus dos Santos Junior|ennt@gft.com|
 
-**Nome da equipe:** Equipe 05 (gft-smc-2026-equipe-05)
+**Nome da equipe:** Neo Medallion (gft-smc-2026-equipe-05)
 
 ---
 
@@ -29,7 +29,7 @@ Diariamente, o mercado é bombardeado por centenas de Fatos Relevantes, notícia
 
 ## 💡 A Solução
 
-O **SMC Thesis Monitor** é um pipeline autônomo baseado em Agentes de Inteligência Artificial desenhado para atuar como um "co-piloto de risco" vigilante. 
+O **TAMY - Neo Medallion Thesis Monitor** é um pipeline autônomo baseado em Agentes de Inteligência Artificial desenhado para atuar como um "co-piloto de risco" vigilante. 
 
 O sistema ingere (ou coleta autonomamente via Google Search) o fluxo de notícias do mercado financeiro, identifica ativos mencionados, cruza o texto da notícia diretamente com a documentação da tese de investimento vigente, diagnostica quebras ou reforços estruturais (com base nos pilares da tese) e notifica o gestor imediatamente de forma mastigada, priorizando o risco severo.
 
@@ -112,7 +112,7 @@ Os serviços estão deployados no Google Cloud Run (`us-central1`). Devido às p
 
 ```bash
 # Conecta a Workstation do Cloud Run na sua porta local
-gcloud run services proxy smc-frontend --region us-central1 --port 8501
+gcloud run services proxy neomedallion-frontend --region us-central1 --port 8501
 ```
 
 Acesse imediatamente no navegador em: `http://localhost:8501`

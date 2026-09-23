@@ -14,7 +14,7 @@ from src.data.rag_repository import rag_db
 from src.core.models import UpdateAlertStatusRequest
 
 
-app = FastAPI(title="SMC Thesis Monitor API")
+app = FastAPI(title="TAMY - Neo Medallion Thesis Monitor API")
 
 # Lazy loading of orchestrator to ensure immediate port binding on container startup
 _orchestrator = None
@@ -35,7 +35,7 @@ orchestrator = OrchestratorProxy()
 @app.get("/")
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "service": "smc-backend"}
+    return {"status": "ok", "service": "neomedallion-backend"}
 
 class AnalyzeRequest(BaseModel):
     ticker: str
