@@ -1,0 +1,16 @@
+google-adk
+google-cloud-storage
+google-cloud-pubsub
+google-cloud-firestore
+pydantic
+python-dotenv
+google-auth>=2.0.0
+fastapi==0.141.1
+uvicorn==0.52.4
+nest_asyncio
+requests==2.34.2
+streamlit==1.62.0
+chromadb==0.5.23
+pypdf==5.1.0
+langchain-text-splitters==0.3.3
+

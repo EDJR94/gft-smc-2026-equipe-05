@@ -43,26 +43,37 @@ def test_firestore_repository_update_status():
     """Valida a atualização de status (Human-in-the-Loop) no repositório."""
     repo = FirestoreAlertRepository(collection_name="test_alerts")
     
-    alert = DivergenceAlert(
+    # Risco MEDIO: não fica pendente (status is None)
+    alert_medio = DivergenceAlert(
         ticker="VALE3",
         severity=SeverityLevel.MEDIO,
         affected_pillar="Governança",
         rationale="Rumores de intervenção no conselho.",
         quotes_from_thesis=[]
     )
+    stored_medio = repo.save_alert(alert_medio, news_text="Rumores sobre conselho", custom_id="test_alert_vale3_002")
+    assert stored_medio.status is None
     
-    stored = repo.save_alert(alert, news_text="Rumores sobre conselho", custom_id="test_alert_vale3_002")
-    assert stored.status == AlertStatus.PENDING_REVIEW
-    
+    # Risco ALTO: requer aprovação humana obrigatória (PENDING_REVIEW)
+    alert_alto = DivergenceAlert(
+        ticker="ITUB4",
+        severity=SeverityLevel.ALTO,
+        affected_pillar="Crédito",
+        rationale="Aumento expressivo de PDD.",
+        quotes_from_thesis=[]
+    )
+    stored_alto = repo.save_alert(alert_alto, news_text="Aumento de PDD", custom_id="test_alert_itub4_003")
+    assert stored_alto.status == AlertStatus.PENDING_REVIEW
+
     # Atualizar para ACKNOWLEDGED
     updated = repo.update_alert_status(
-        alert_id="test_alert_vale3_002",
+        alert_id="test_alert_itub4_003",
         status=AlertStatus.ACKNOWLEDGED,
         reviewer_notes="Gestor validou risco com a mesa."
     )
     assert updated is True
     
-    fetched = repo.get_alert("test_alert_vale3_002")
+    fetched = repo.get_alert("test_alert_itub4_003")
     assert fetched is not None
     assert fetched.status == AlertStatus.ACKNOWLEDGED
     assert fetched.reviewer_notes == "Gestor validou risco com a mesa."
@@ -104,3 +115,27 @@ def test_api_update_alert_status_endpoint():
     # Confirma que foi persistido
     fetched = firestore_db.get_alert(stored.id)
     assert fetched.status == AlertStatus.DISMISSED
+
+
+def test_hitl_conditional_approval_policy():
+    """Valida que HITL é acionado (PENDING_REVIEW) apenas para ALTO e MUITO_ALTO, e None para os demais."""
+    repo = FirestoreAlertRepository(collection_name="test_alerts_policy")
+    
+    test_matrix = [
+        (SeverityLevel.MUITO_ALTO, AlertStatus.PENDING_REVIEW),
+        (SeverityLevel.ALTO, AlertStatus.PENDING_REVIEW),
+        (SeverityLevel.MEDIO, None),
+        (SeverityLevel.BAIXO, None),
+        (SeverityLevel.NEUTRO, None),
+    ]
+    
+    for sev, expected_status in test_matrix:
+        alert = DivergenceAlert(
+            ticker="PETR4",
+            severity=sev,
+            affected_pillar="Pilar Teste",
+            rationale=f"Diagnóstico para severidade {sev.value}",
+            quotes_from_thesis=[]
+        )
+        saved = repo.save_alert(alert, news_text="Fato relevante", custom_id=f"alert_test_{sev.value.lower()}")
+        assert saved.status == expected_status, f"Severidade {sev} deveria ter status {expected_status}, mas obteve {saved.status}"

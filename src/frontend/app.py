@@ -190,50 +190,44 @@ def render_alert_detail(alert: dict):
     sev_label = sev.replace("_", " ")
     desc = escape_markdown(alert.get("description", "Análise de Fato Relevante"))
     alert_id = str(alert.get("id", ""))
-    status = alert.get("status", "PENDING_REVIEW")
+    status = alert.get("status")
 
-    # Adaptar nomenclatura de governança conforme a severidade diagnosticada
-    is_risk = sev in ["MUITO_ALTO", "ALTO", "MEDIO"]
+    # Adaptar governança: pendente exclusivamente para risco ALTO e MUITO_ALTO
     is_critical = sev in ["MUITO_ALTO", "ALTO"]
 
+    status_badge_html = ""
     if status == "ACKNOWLEDGED":
-        if is_critical:
-            status_text = "✅ Quebra Confirmada"
-        elif sev == "MEDIO":
-            status_text = "✅ Risco Validado"
-        else:
-            status_text = "✅ Diagnóstico Validado (Tese Mantida)"
-        status_class = "badge-ACKNOWLEDGED"
+        status_text = "✅ Quebra Confirmada" if is_critical else "✅ Validado"
+        status_badge_html = f'<span class="badge-status badge-ACKNOWLEDGED">{status_text}</span>'
     elif status == "DISMISSED":
-        if is_risk:
-            status_text = "❌ Falso Positivo (Descartado)"
-        else:
-            status_text = "❌ Diagnóstico Rejeitado"
-        status_class = "badge-DISMISSED"
+        status_text = "❌ Falso Positivo" if is_critical else "❌ Descartado"
+        status_badge_html = f'<span class="badge-status badge-DISMISSED">{status_text}</span>'
+    elif is_critical:
+        status_badge_html = '<span class="badge-status badge-PENDING_REVIEW">⏳ Pendente</span>'
     else:
-        status_text = "⏳ Pendente de Revisão"
-        status_class = "badge-PENDING_REVIEW"
+        status_badge_html = ""
     
     ticker = escape_markdown(alert.get('ticker', ''))
     rationale = escape_markdown(alert.get('rationale', ''))
     pillar = escape_markdown(alert.get('affected_pillar', 'Não especificado'))
     news_text = escape_markdown(alert.get('news_text', ''))
 
-    st.markdown(f"""
-    <div class="alert-card" style="margin-top: 1rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-            <div>
-                <span class="ticker-badge" style="font-size: 1.2rem;">{ticker}</span>
-                <span style="font-weight: 700; font-size: 1.3rem; margin-left: 0.5rem; color: #0f172a;">{desc}</span>
-                <span class="badge-status {status_class}">{status_text}</span>
-            </div>
-            <span class="badge badge-{sev}" style="font-size: 1rem; padding: 0.5rem 1rem;">{sev_label}</span>
-        </div>
-        <div style="font-size: 1.1rem; color: #334155; margin-bottom: 0.5rem; line-height: 1.6; padding: 1rem; background: #f8fafc; border-radius: 6px; border-left: 4px solid #94a3b8;">
-            <b>Diagnóstico do Agente:</b><br>{rationale}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    detail_html = (
+        f'<div class="alert-card" style="margin-top: 1rem;">'
+        f'<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">'
+        f'<div>'
+        f'<span class="ticker-badge" style="font-size: 1.2rem;">{ticker}</span>'
+        f'<span style="font-weight: 700; font-size: 1.3rem; margin-left: 0.5rem; color: #0f172a;">{desc}</span>'
+        f'{status_badge_html}'
+        f'</div>'
+        f'<span class="badge badge-{sev}" style="font-size: 1rem; padding: 0.5rem 1rem;">{sev_label}</span>'
+        f'</div>'
+        f'<div style="font-size: 1.1rem; color: #334155; margin-bottom: 0.5rem; line-height: 1.6; padding: 1rem; background: #f8fafc; border-radius: 6px; border-left: 4px solid #94a3b8;">'
+        f'<b>Diagnóstico do Agente:</b><br>{rationale}'
+        f'</div>'
+        f'</div>'
+    )
+    st.markdown(detail_html, unsafe_allow_html=True)
     
     st.markdown("### 🔎 Evidências para Auditoria")
     col_tese, col_fato = st.columns(2)
@@ -263,57 +257,48 @@ def render_alert_detail(alert: dict):
                 if src_url:
                     st.markdown(f"- 🌐 [{src_title}]({src_url}){badge_domain}")
 
-    st.markdown("---")
-    st.markdown("### 🧑‍💼 Parecer do Analista (Human-in-the-Loop)")
-
     if is_critical:
+        st.markdown("---")
+        st.markdown("### 🧑‍💼 Parecer do Analista")
         st.caption("O agente diagnosticou potencial **quebra ou impacto severo** na tese. Registre sua validação:")
+
         btn_ack_text = "✅ Confirmar Quebra de Tese"
         btn_dism_text = "❌ Descartar como Falso Positivo"
         ack_toast = "Quebra de tese confirmada pelo analista."
         dism_toast = "Alerta descartado como falso positivo."
-    elif sev == "MEDIO":
-        st.caption("O agente identificou **risco moderado ou ruído**. Registre sua validação:")
-        btn_ack_text = "✅ Validar Alerta de Risco"
-        btn_dism_text = "❌ Descartar como Ruído"
-        ack_toast = "Alerta de risco validado pelo analista."
-        dism_toast = "Alerta descartado como ruído irrelevante."
-    else:
-        st.caption("O agente avaliou este evento como **neutro / alinhado com a tese** (sem quebra). Registre sua validação:")
-        btn_ack_text = "✅ Validar Diagnóstico (Tese Mantida)"
-        btn_dism_text = "❌ Discordar do Diagnóstico"
-        ack_toast = "Diagnóstico do agente validado (tese de investimento preservada)."
-        dism_toast = "Diagnóstico do agente rejeitado pelo analista."
 
-    analyst_note = st.text_input(
-        "Anotação do Analista (opcional):",
-        value=alert.get("reviewer_notes") or "",
-        key=f"note_input_{alert_id}",
-        placeholder="Ex: Alinhamento confirmado com a gestão; manter monitoramento de rotina..."
-    )
+        analyst_note = st.text_input(
+            "Anotação do Analista (opcional):",
+            value=alert.get("reviewer_notes") or "",
+            key=f"note_input_{alert_id}",
+            placeholder="Ex: Alinhamento confirmado com a gestão; atualizar projeções de capex..."
+        )
 
-    col_btn_ack, col_btn_dism, col_space = st.columns([2, 2, 2])
-    with col_btn_ack:
-        if st.button(btn_ack_text, key=f"btn_hitl_ack_{alert_id}", use_container_width=True):
-            note_to_save = analyst_note.strip() or f"Validado pelo analista ({status_text})."
-            if alert_id:
-                update_alert_status_api(alert_id, "ACKNOWLEDGED", notes=note_to_save)
-            alert["status"] = "ACKNOWLEDGED"
-            alert["reviewer_notes"] = note_to_save
-            st.toast(ack_toast, icon="✅")
-            st.rerun()
+        col_btn_ack, col_btn_dism, col_space = st.columns([2, 2, 2])
+        with col_btn_ack:
+            if st.button(btn_ack_text, key=f"btn_hitl_ack_{alert_id}", use_container_width=True):
+                note_to_save = analyst_note.strip() or "Quebra de tese confirmada pelo analista."
+                if alert_id:
+                    update_alert_status_api(alert_id, "ACKNOWLEDGED", notes=note_to_save)
+                alert["status"] = "ACKNOWLEDGED"
+                alert["reviewer_notes"] = note_to_save
+                st.toast(ack_toast, icon="✅")
+                st.rerun()
 
-    with col_btn_dism:
-        if st.button(btn_dism_text, key=f"btn_hitl_dism_{alert_id}", use_container_width=True):
-            note_to_save = analyst_note.strip() or f"Descartado pelo analista ({status_text})."
-            if alert_id:
-                update_alert_status_api(alert_id, "DISMISSED", notes=note_to_save)
-            alert["status"] = "DISMISSED"
-            alert["reviewer_notes"] = note_to_save
-            st.toast(dism_toast, icon="ℹ️")
-            st.rerun()
+        with col_btn_dism:
+            if st.button(btn_dism_text, key=f"btn_hitl_dism_{alert_id}", use_container_width=True):
+                note_to_save = analyst_note.strip() or "Alerta descartado como falso positivo pelo analista."
+                if alert_id:
+                    update_alert_status_api(alert_id, "DISMISSED", notes=note_to_save)
+                alert["status"] = "DISMISSED"
+                alert["reviewer_notes"] = note_to_save
+                st.toast(dism_toast, icon="ℹ️")
+                st.rerun()
 
-    if alert.get("reviewer_notes"):
+        if alert.get("reviewer_notes"):
+            st.info(f"📝 **Parecer Registrado do Analista:** {alert['reviewer_notes']}")
+    elif alert.get("reviewer_notes"):
+        st.markdown("---")
         st.info(f"📝 **Parecer Registrado do Analista:** {alert['reviewer_notes']}")
 
 
@@ -392,16 +377,19 @@ with tab_simulacao:
                     if data.get("status") == "success" and data.get("result"):
                         result = data["result"]
                         alert_meta = data.get("alert") or {}
+                        sev = result.get("severity", "NEUTRO")
+                        default_status = "PENDING_REVIEW" if sev in ["MUITO_ALTO", "ALTO"] else None
                         return {
                             "id": alert_meta.get("id") or f"alert_{idx}",
                             "ticker": ticker,
                             "description": desc,
                             "news_text": news_text,
-                            "severity": result.get("severity", "NEUTRO"),
+                            "severity": sev,
                             "rationale": result.get("rationale", ""),
                             "affected_pillar": result.get("affected_pillar", "Pilar Geral"),
                             "quotes_from_thesis": result.get("quotes_from_thesis", []),
-                            "status": alert_meta.get("status", "PENDING_REVIEW"),
+                            "status": alert_meta.get("status") if alert_meta.get("status") is not None else default_status,
+                            "reviewer_notes": alert_meta.get("reviewer_notes"),
                             "created_at": alert_meta.get("created_at", ""),
                             "order_idx": idx
                         }
@@ -481,37 +469,35 @@ with tab_simulacao:
             for alert in page_alerts:
                 sev = alert["severity"]
                 sev_label = sev.replace("_", " ")
-                status = alert.get("status", "PENDING_REVIEW")
+                status = alert.get("status")
+                is_critical = sev in ["MUITO_ALTO", "ALTO"]
+
                 if status == "ACKNOWLEDGED":
-                    if sev in ["MUITO_ALTO", "ALTO"]:
-                        status_text = "✅ Quebra Validada"
-                    elif sev == "MEDIO":
-                        status_text = "✅ Risco Validado"
-                    else:
-                        status_text = "✅ Validado (Neutro)"
-                    status_class = "badge-ACKNOWLEDGED"
+                    status_text = "✅ Quebra Validada" if is_critical else "✅ Validado"
+                    status_badge_html = f'<span class="badge-status badge-ACKNOWLEDGED">{status_text}</span>'
                 elif status == "DISMISSED":
-                    status_text = "❌ Descartado"
-                    status_class = "badge-DISMISSED"
+                    status_badge_html = '<span class="badge-status badge-DISMISSED">❌ Descartado</span>'
+                elif is_critical:
+                    status_badge_html = '<span class="badge-status badge-PENDING_REVIEW">⏳ Pendente</span>'
                 else:
-                    status_text = "⏳ Pendente"
-                    status_class = "badge-PENDING_REVIEW"
+                    status_badge_html = ""
 
                 with st.container():
                     col_info, col_btn = st.columns([4, 1])
                     with col_info:
                         card_ticker = escape_markdown(alert.get('ticker', ''))
                         card_desc = escape_markdown(alert.get('description', ''))
-                        st.markdown(f"""
-                        <div style="padding: 1rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
-                            <div>
-                                <span class="ticker-badge">{card_ticker}</span>
-                                <span style="font-weight: 600; margin-left: 0.5rem; color: #1e293b;">{card_desc}</span>
-                                <span class="badge-status {status_class}">{status_text}</span>
-                            </div>
-                            <span class="badge badge-{sev}">{sev_label}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
+                        card_html = (
+                            f'<div style="padding: 1rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">'
+                            f'<div>'
+                            f'<span class="ticker-badge">{card_ticker}</span>'
+                            f'<span style="font-weight: 600; margin-left: 0.5rem; color: #1e293b;">{card_desc}</span>'
+                            f'{status_badge_html}'
+                            f'</div>'
+                            f'<span class="badge badge-{sev}">{sev_label}</span>'
+                            f'</div>'
+                        )
+                        st.markdown(card_html, unsafe_allow_html=True)
                     with col_btn:
                         st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
                         if st.button("Ver Auditoria 🔍", key=f"btn_detalhe_{alert['id']}", use_container_width=True):
@@ -603,17 +589,20 @@ with tab_avulsa:
                                 if s_url:
                                     st.markdown(f"- 🌐 [{s_title}]({s_url}){s_badge}")
                     elif result:
+                        sev = result.get("severity", "NEUTRO")
+                        default_status = "PENDING_REVIEW" if sev in ["MUITO_ALTO", "ALTO"] else None
                         st.session_state["live_result"] = {
                             "id": alert_meta.get("id", f"live_{custom_ticker}"),
                             "ticker": custom_ticker,
                             "description": f"Auditoria Live - Notícia Google Grounding ({custom_ticker})",
                             "news_text": news_found,
                             "sources": sources,
-                            "severity": result.get("severity", "NEUTRO"),
+                            "severity": sev,
                             "rationale": result.get("rationale", ""),
                             "affected_pillar": result.get("affected_pillar", "Pilar Geral"),
                             "quotes_from_thesis": result.get("quotes_from_thesis", []),
-                            "status": alert_meta.get("status", "PENDING_REVIEW")
+                            "status": alert_meta.get("status") if alert_meta.get("status") is not None else default_status,
+                            "reviewer_notes": alert_meta.get("reviewer_notes")
                         }
                     else:
                         st.session_state["live_result"] = None
@@ -670,16 +659,19 @@ with tab_avulsa:
                             f"📌 **Ativos com Teses Cobertas:** `{cov_str}`"
                         )
                     elif result:
+                        sev = result.get("severity", "NEUTRO")
+                        default_status = "PENDING_REVIEW" if sev in ["MUITO_ALTO", "ALTO"] else None
                         st.session_state["live_result"] = {
                             "id": alert_meta.get("id", f"live_{custom_ticker}"),
                             "ticker": custom_ticker,
                             "description": f"Auditoria Avulsa ({custom_ticker})",
                             "news_text": custom_news,
-                            "severity": result.get("severity", "NEUTRO"),
+                            "severity": sev,
                             "rationale": result.get("rationale", ""),
                             "affected_pillar": result.get("affected_pillar", "Pilar Geral"),
                             "quotes_from_thesis": result.get("quotes_from_thesis", []),
-                            "status": alert_meta.get("status", "PENDING_REVIEW")
+                            "status": alert_meta.get("status") if alert_meta.get("status") is not None else default_status,
+                            "reviewer_notes": alert_meta.get("reviewer_notes")
                         }
                     else:
                         st.session_state["live_result"] = None

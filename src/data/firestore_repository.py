@@ -83,14 +83,30 @@ class FirestoreAlertRepository:
         news_text: str = "",
         description: str = "",
         custom_id: Optional[str] = None,
-        sources: Optional[List[Dict[str, str]]] = None
+        sources: Optional[List[Dict[str, str]]] = None,
+        status: Optional[AlertStatus] = None,
+        reviewer_notes: Optional[str] = None
     ) -> StoredAlert:
         """
         Salva um alerta gerado pelo agente no Firestore, no GCS e no cache local.
+        Aplica governança Human-in-the-Loop (HITL) seletiva por criticidade:
+        - Severidades MUITO_ALTO e ALTO: exigem validação e aprovação humana (status PENDING_REVIEW).
+        - Severidades MEDIO, BAIXO e NEUTRO: auto-aprovadas pelo sistema (status AUTO_APPROVED),
+          otimizando a produtividade do time de Research e evitando sobrecarga com riscos rotineiros.
         """
         now_iso = datetime.now(timezone.utc).isoformat()
         alert_id = custom_id or f"{alert.ticker}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
         desc = description or f"Alerta de Divergência - {alert.ticker}"
+
+        # Human-in-the-Loop: apenas riscos ALTO e MUITO_ALTO iniciam como PENDING_REVIEW; as demais severidades não recebem status pendente
+        requires_hitl = alert.severity in (SeverityLevel.MUITO_ALTO, SeverityLevel.ALTO)
+
+        if status is not None:
+            final_status = status
+        else:
+            final_status = AlertStatus.PENDING_REVIEW if requires_hitl else None
+
+        final_notes = reviewer_notes
 
         stored = StoredAlert(
             id=alert_id,
@@ -102,8 +118,8 @@ class FirestoreAlertRepository:
             news_text=news_text,
             description=desc,
             created_at=now_iso,
-            status=AlertStatus.PENDING_REVIEW,
-            reviewer_notes=None,
+            status=final_status,
+            reviewer_notes=final_notes,
             sources=sources or []
         )
 
@@ -325,7 +341,7 @@ class FirestoreAlertRepository:
                 ],
                 "news_text": "Rumores indicam pressão do governo para emplacar nome no Conselho de Administração da Vale nas próximas eleições.",
                 "description": "Ruído - Governança",
-                "status": AlertStatus.PENDING_REVIEW,
+                "status": None,
                 "reviewer_notes": None,
                 "sources": [
                     {"title": "Pressão sobre conselho da Vale e sucessão executiva", "url": "https://exame.com/negocios/vale-sucessao-ceo-governanca/", "domain": "exame.com"}

@@ -45,7 +45,7 @@ class StoredAlert(BaseModel):
     news_text: str = Field(default="", description="Original news or material fact text")
     description: str = Field(default="Alerta de Divergência", description="Short title/summary of the scenario")
     created_at: str = Field(..., description="ISO 8601 timestamp of creation")
-    status: AlertStatus = Field(default=AlertStatus.PENDING_REVIEW, description="Human-in-the-Loop review status")
+    status: Optional[AlertStatus] = Field(default=None, description="Human-in-the-Loop review status (PENDING_REVIEW para ALTO e MUITO_ALTO)")
     reviewer_notes: Optional[str] = Field(None, description="Notes added by human reviewer/analyst")
     sources: List[Dict[str, str]] = Field(default_factory=list, description="Web sources and links from Google Search Grounding")
 
