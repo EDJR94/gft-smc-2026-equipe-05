@@ -135,10 +135,11 @@ Para executar todos os testes unitários e end-to-end (E2E):
 
 ## 🎥 Vídeo (Pitch + Demo)
 
-🔗 **Link do vídeo:** [`docs/video/demo_pitch.mp4`](docs/video/demo_pitch.mp4) *(Vídeo local no repositório)* · Ver também [`docs/video/link.md`](docs/video/link.md)
+🔗 **Link do vídeo:** [https://www.youtube.com/watch?v=7H7iKDI_MUE](https://www.youtube.com/watch?v=7H7iKDI_MUE) *(YouTube - Não Listado)*
 
 ⏱️ **Duração:** 12 minutos e 16 segundos
 
+- **Streaming:** [https://www.youtube.com/watch?v=7H7iKDI_MUE](https://www.youtube.com/watch?v=7H7iKDI_MUE)
 - **Arquivo no repositório:** [`docs/video/demo_pitch.mp4`](docs/video/demo_pitch.mp4) (disponível também em formato original [`docs/video/demo_pitch.mov`](docs/video/demo_pitch.mov))
 - **Resolução:** Full HD (1920x1080), Codec H.264
 - **Conteúdo:** Apresentação do problema no mercado financeiro, arquitetura técnica do pipeline multi-agentes no GCP, demonstração prática ao vivo da Workstation (simulação em lote, live grounding e governança Human-in-the-Loop com parecer do analista).
