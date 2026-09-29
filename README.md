@@ -54,7 +54,7 @@ O sistema ingere (ou coleta autonomamente via Google Search) o fluxo de notícia
 
 ## 🏗️ Arquitetura
 
-![Arquitetura da Solução](docs/arquitetura.png)
+![Arquitetura da Solução](docs/imagens/arquitetura.png)
 
 ### Fluxo Multi-Agentes (Agentic RAG)
 
@@ -154,9 +154,9 @@ Todos os entregáveis obrigatórios do desafio estão organizados neste reposit�
 |---|---|---|---|
 |Demo funcional|Link / código|seção [Demo](#▶️-demo) + `/src`|[x]|
 |Vídeo (pitch + demo)|Link (MP4/URL)|seção [Vídeo](#🎥-vídeo-pitch--demo) + [`docs/video/`](docs/video/)|[x]|
-|One-pager (problema, solução, impacto)|**PDF**|[`docs/one-pager.pdf`](docs/one-pager.pdf)|[x]|
-|Diagrama de arquitetura|**PDF** + imagem|[`docs/arquitetura.pdf`](docs/arquitetura.pdf) · [`docs/arquitetura.png`](docs/arquitetura.png)|[x]|
-|Apresentação (opcional)|PPT/PDF|[`docs/apresentacao.pptx`](docs/apresentacao.pptx) · [`docs/apresentacao.pdf`](docs/apresentacao.pdf)|[x]|
+|One-pager (problema, solução, impacto)|**PDF**|[`docs/entregaveis/one-pager.pdf`](docs/entregaveis/one-pager.pdf)|[x]|
+|Diagrama de arquitetura|**PDF** + imagem|[`docs/entregaveis/arquitetura.pdf`](docs/entregaveis/arquitetura.pdf) · [`docs/imagens/arquitetura.png`](docs/imagens/arquitetura.png)|[x]|
+|Apresentação (opcional)|PPT/PDF|[`docs/entregaveis/apresentacao.pptx`](docs/entregaveis/apresentacao.pptx) · [`docs/entregaveis/apresentacao.pdf`](docs/entregaveis/apresentacao.pdf)|[x]|
 
 ---
 
@@ -179,16 +179,21 @@ Todos os entregáveis obrigatórios do desafio estão organizados neste reposit�
 │   └── tese_investimentos/    (Teses fundamentalistas estruturadas)
 │
 ├── docs/                      ← DOCUMENTAÇÃO e artefatos de entrega
-│   ├── one-pager.pdf          → PDF: problema, solução e impacto (OBRIGATÓRIO)
-│   ├── arquitetura.pdf        → PDF: diagrama da arquitetura (OBRIGATÓRIO p/ Forms)
-│   ├── arquitetura.png        → imagem do diagrama (referenciada no README)
-│   ├── apresentacao.pptx      → PPT/slides do pitch (opcional)
-│   ├── apresentacao.pdf       → versão PDF da apresentação (opcional)
+│   ├── entregaveis/           → artefatos obrigatórios para o Forms
+│   │   ├── one-pager.pdf      (OBRIGATÓRIO: problema, solução e impacto)
+│   │   ├── arquitetura.pdf    (OBRIGATÓRIO: diagrama de arquitetura)
+│   │   ├── apresentacao.pptx  (slides do pitch)
+│   │   └── apresentacao.pdf   (versão PDF da apresentação)
+│   ├── imagens/               → diagramas e prints de tela da interface
+│   │   ├── arquitetura.png    (referenciada no README)
+│   │   └── smc_thesis_monitor.png
 │   ├── video/
-│   │   ├── link.md            → arquivo texto com o LINK do vídeo
+│   │   ├── link.md            → LINK do vídeo (YouTube não-listado)
 │   │   ├── demo_pitch.mp4     → gravação de demonstração e pitch em MP4
 │   │   └── demo_pitch.mov     → gravação em formato original MOV
-│   └── imagens/               → diagramas e prints de tela da interface
+│   └── referencias/           → documentação técnica de referência
+│       ├── adk_reference.md   (referência do Google ADK)
+│       └── one-pager.html     (fonte HTML do one-pager)
 │
 ├── scripts/                   ← SCRIPTS utilitários
 │   ├── run_demo.sh            (Inicializa backend e frontend em paralelo)
@@ -210,11 +215,10 @@ Todos os entregáveis obrigatórios do desafio estão organizados neste reposit�
 
 - **Código e prompts** → `src/`. Inclui `requirements.txt` e scripts de setup.
 - **Dados** → `data/`. Apenas mock, público ou sintético (sem dados reais ou sensíveis).
-- **One-pager** → `docs/one-pager.pdf` (formato PDF).
-- **Diagrama de arquitetura** → `docs/arquitetura.pdf` (para o Forms) e `docs/arquitetura.png` para exibição no README.
-- **Apresentação / slides** → `docs/apresentacao.pptx` e `docs/apresentacao.pdf`.
-- **Vídeo** → Registrado em `docs/video/link.md` e arquivo `.mp4` incluído em `docs/video/demo_pitch.mp4`.
+- **Entregáveis para o Forms** → `docs/entregaveis/` (PDFs de one-pager, arquitetura e apresentação).
 - **Imagens, prints e diagramas** → `docs/imagens/`.
+- **Vídeo** → `docs/video/` com `link.md` contendo o link do YouTube e os arquivos `.mp4`/`.mov`.
+- **Referências técnicas** → `docs/referencias/` (documentação de apoio interno).
 
 ---
 
@@ -222,9 +226,9 @@ Todos os entregáveis obrigatórios do desafio estão organizados neste reposit�
 
 - [x] README preenchido (campos `[ ]` substituídos, comentários removidos)
 - [x] Demo funcional acessível pelo link (Cloud Run + execução local)
-- [x] Vídeo (pitch + demo) gravado e linkado em `docs/video/`
-- [x] One-pager em **PDF** em `docs/one-pager.pdf`
-- [x] Diagrama de arquitetura em **PDF** em `docs/arquitetura.pdf`
+- [x] Vídeo (pitch + demo) gravado e linkado em `docs/video/` (YouTube: https://www.youtube.com/watch?v=7H7iKDI_MUE)
+- [x] One-pager em **PDF** em `docs/entregaveis/one-pager.pdf`
+- [x] Diagrama de arquitetura em **PDF** em `docs/entregaveis/arquitetura.pdf`
 - [x] Somente dados mock/públicos/sintéticos no repositório
 - [x] Equipe e capitão preenchidos corretamente
 - [ ] Formulário de **Submissão do Projeto** enviado (link demo, link vídeo, arquitetura PDF, one-pager PDF)
