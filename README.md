@@ -114,7 +114,7 @@ gcloud run services proxy neomedallion-frontend --region us-central1 --port 8501
 ```
 Acesse imediatamente no navegador em: `http://localhost:8501`
 
-### Como executar localmente _(se aplicável)_:
+### Como executar localmente:
 Caso prefira rodar a stack completa na máquina local sem dependências externas, utilize o script automatizado que sobe o Backend FastAPI e o Frontend Streamlit em paralelo:
 
 ```bash
@@ -123,7 +123,7 @@ chmod +x scripts/run_demo.sh
 ```
 Acesse no navegador em: `http://localhost:8501`
 
-**Credenciais de teste** _(se aplicável)_: Acesso corporativo via token GCP (`gcloud auth application-default login`) no ambiente em nuvem, ou execução autônoma sem autenticação obrigatória no modo local.
+**Credenciais e autenticação:** Acesso corporativo via token GCP (`gcloud auth application-default login`) no ambiente em nuvem, ou execução autônoma sem autenticação obrigatória no modo local.
 
 ### Bateria de Testes Automatizados
 Para executar todos os testes unitários e end-to-end (E2E):
@@ -148,15 +148,15 @@ Para executar todos os testes unitários e end-to-end (E2E):
 
 ## 📎 Artefatos Entregáveis
 
-Todos os entregáveis obrigatórios do desafio estão organizados neste repositório conforme a tabela abaixo:
+Todos os documentos e entregáveis do projeto estão disponíveis e organizados no repositório:
 
-|Entregável|Formato|Onde está|Status|
-|---|---|---|---|
-|Demo funcional|Link / código|seção [Demo](#▶️-demo) + `/src`|[x]|
-|Vídeo (pitch + demo)|Link (MP4/URL)|seção [Vídeo](#🎥-vídeo-pitch--demo) + [`docs/video/`](docs/video/)|[x]|
-|One-pager (problema, solução, impacto)|**PDF**|[`docs/entregaveis/one-pager.pdf`](docs/entregaveis/one-pager.pdf)|[x]|
-|Diagrama de arquitetura|**PDF** + imagem|[`docs/entregaveis/arquitetura.pdf`](docs/entregaveis/arquitetura.pdf) · [`docs/imagens/arquitetura.png`](docs/imagens/arquitetura.png)|[x]|
-|Apresentação (opcional)|PPT/PDF|[`docs/entregaveis/apresentacao.pptx`](docs/entregaveis/apresentacao.pptx) · [`docs/entregaveis/apresentacao.pdf`](docs/entregaveis/apresentacao.pdf)|[x]|
+|Entregável|Formato|Acesso / Localização|
+|---|---|---|
+|**Demo funcional**|Aplicação Web (Cloud Run)|[Acessar Demo no Cloud Run](#▶️-demo) · Código em `/src`|
+|**Vídeo (pitch + demo)**|YouTube / MP4 / MOV|[Assistir no YouTube](https://www.youtube.com/watch?v=7H7iKDI_MUE) · [`docs/video/`](docs/video/)|
+|**One-pager executivo**|PDF|[`docs/entregaveis/one-pager.pdf`](docs/entregaveis/one-pager.pdf)|
+|**Diagrama de arquitetura**|PDF + Imagem|[`docs/entregaveis/arquitetura.pdf`](docs/entregaveis/arquitetura.pdf) · [`docs/imagens/arquitetura.png`](docs/imagens/arquitetura.png)|
+|**Apresentação de slides**|PPTX + PDF|[`docs/entregaveis/apresentacao.pptx`](docs/entregaveis/apresentacao.pptx) · [`docs/entregaveis/apresentacao.pdf`](docs/entregaveis/apresentacao.pdf)|
 
 ---
 
@@ -164,7 +164,7 @@ Todos os entregáveis obrigatórios do desafio estão organizados neste reposit�
 
 ```
 .
-├── README.md                  ← este arquivo (o cartão de visita do agente)
+├── README.md                  ← documentação técnica e executiva do projeto
 │
 ├── src/                       ← CÓDIGO-FONTE do agente (Clean Architecture)
 │   ├── api/                   (Gateways e rotas REST FastAPI)
@@ -179,9 +179,9 @@ Todos os entregáveis obrigatórios do desafio estão organizados neste reposit�
 │   └── tese_investimentos/    (Teses fundamentalistas estruturadas)
 │
 ├── docs/                      ← DOCUMENTAÇÃO e artefatos de entrega
-│   ├── entregaveis/           → artefatos obrigatórios para o Forms
-│   │   ├── one-pager.pdf      (OBRIGATÓRIO: problema, solução e impacto)
-│   │   ├── arquitetura.pdf    (OBRIGATÓRIO: diagrama de arquitetura)
+│   ├── entregaveis/           → artefatos executivos em PDF e apresentação
+│   │   ├── one-pager.pdf      (one-pager executivo: problema, solução e impacto)
+│   │   ├── arquitetura.pdf    (diagrama de arquitetura técnica em PDF)
 │   │   ├── apresentacao.pptx  (slides do pitch)
 │   │   └── apresentacao.pdf   (versão PDF da apresentação)
 │   ├── imagens/               → diagramas e prints de tela da interface
@@ -210,28 +210,6 @@ Todos os entregáveis obrigatórios do desafio estão organizados neste reposit�
 ├── .gitignore                 ← Arquivos ignorados pelo Git
 └── LICENSE                    ← Propriedade intelectual da GFT; autoria dos participantes
 ```
-
-### Onde gravar cada tipo de arquivo
-
-- **Código e prompts** → `src/`. Inclui `requirements.txt` e scripts de setup.
-- **Dados** → `data/`. Apenas mock, público ou sintético (sem dados reais ou sensíveis).
-- **Entregáveis para o Forms** → `docs/entregaveis/` (PDFs de one-pager, arquitetura e apresentação).
-- **Imagens, prints e diagramas** → `docs/imagens/`.
-- **Vídeo** → `docs/video/` com `link.md` contendo o link do YouTube e os arquivos `.mp4`/`.mov`.
-- **Referências técnicas** → `docs/referencias/` (documentação de apoio interno).
-
----
-
-## ✅ Checklist antes de submeter
-
-- [x] README preenchido (campos `[ ]` substituídos, comentários removidos)
-- [x] Demo funcional acessível pelo link (Cloud Run + execução local)
-- [x] Vídeo (pitch + demo) gravado e linkado em `docs/video/` (YouTube: https://www.youtube.com/watch?v=7H7iKDI_MUE)
-- [x] One-pager em **PDF** em `docs/entregaveis/one-pager.pdf`
-- [x] Diagrama de arquitetura em **PDF** em `docs/entregaveis/arquitetura.pdf`
-- [x] Somente dados mock/públicos/sintéticos no repositório
-- [x] Equipe e capitão preenchidos corretamente
-- [ ] Formulário de **Submissão do Projeto** enviado (link demo, link vídeo, arquitetura PDF, one-pager PDF)
 
 ---
 
