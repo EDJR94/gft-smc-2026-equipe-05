@@ -106,13 +106,24 @@ graph TD
 
 🔗 **Link da demo:** [https://neomedallion-frontend-ykxwctwdea-uc.a.run.app](https://neomedallion-frontend-ykxwctwdea-uc.a.run.app) *(Ambiente Cloud Run - GCP)*
 
-### Como acessar o ambiente em nuvem (Cloud Run)
-Devido às políticas corporativas de governança e isolamento de segurança no projeto `gft-brazil-bu-gcp`, o serviço no Cloud Run opera em modo autenticado. Para acessar o serviço online:
+### Como acessar o ambiente em nuvem (Google Cloud Run)
+Devido às políticas corporativas de governança e isolamento de segurança no projeto `gft-brazil-bu-gcp`, os serviços no Cloud Run operam em modo autenticado. Estão provisionados dois microsserviços:
+- **`neomedallion-frontend`**: Interface da Workstation (Streamlit).
+- **`neomedallion-backend`**: API Gateway e orquestração dos agentes (FastAPI).
+
+Para conectar a Workstation online via proxy autenticado GCP:
 ```bash
-# Conecta a Workstation do Cloud Run na sua porta local via proxy autenticado GCP
+# Conecta a Workstation do Cloud Run (Streamlit) na sua porta local via proxy autenticado GCP
 gcloud run services proxy neomedallion-frontend --region us-central1 --port 8501
 ```
 Acesse imediatamente no navegador em: `http://localhost:8501`
+
+*(Opcional - para inspecionar a API Backend FastAPI e documentação Swagger):*
+```bash
+# Conecta a API Backend do Cloud Run na sua porta local
+gcloud run services proxy neomedallion-backend --region us-central1 --port 8080
+```
+Acesse no navegador em: `http://localhost:8080/docs`
 
 ### Como executar localmente:
 Caso prefira rodar a stack completa na máquina local sem dependências externas, utilize o script automatizado que sobe o Backend FastAPI e o Frontend Streamlit em paralelo:
@@ -218,11 +229,43 @@ Todos os documentos e entregáveis do projeto estão disponíveis e organizados 
 Para governança, isolamento e controle de custos durante o Hackathon, o ambiente Google Cloud (GCP) é dividido em dois projetos:
 
 1. **`prj-gft-br-merc-cap-1` (Projeto de Frontend & IA):** Hospeda instâncias do Gemini Enterprise e aplicações low-code.
-2. **`gft-brazil-bu-gcp` (Projeto do Desenvolvedor / Backend):** Ambiente onde criamos os microsserviços Cloud Run, Data Stores do Vertex AI Search, Firestore e Storage que alimentam o agente.
+2. **`gft-brazil-bu-gcp` (Projeto do Desenvolvedor / Backend):** Ambiente onde criamos e hospedamos todos os produtos e microsserviços que dão suporte à solução.
 
-### Autenticação Local (SDK / Terminal)
-Para que ferramentas locais se autentiquem no GCP:
+### Produtos e Recursos Google Cloud Provisionados
+
+| Produto Google Cloud | Nome do Recurso / Identificador | Região | Função na Solução |
+|---|---|---|---|
+| **Google Cloud Run (Frontend)** | `neomedallion-frontend` | `us-central1` | Workstation Streamlit com simulação em lote, live grounding e parecer HITL |
+| **Google Cloud Run (Backend)** | `neomedallion-backend` | `us-central1` | API Gateway REST FastAPI com orquestração do pipeline multi-agentes ADK |
+| **Google Vertex AI Search** | `data-store-neomedallion_1789142566980` | `global` | Data Store RAG não estruturado com as teses fundamentalistas indexadas |
+| **Google Vertex AI / Gemini API** | `gemini-2.5-flash` / `gemini-2.5-pro` | `us-central1` | Modelos de IA para triagem inteligente, query generation e diagnóstico |
+| **Google Search Grounding** | Grounding Tool integrada via ADK | `us-central1` | Busca factual em tempo real de notícias e fatos relevantes na web |
+| **Google Cloud Storage (GCS)** | `gs://hackathon-gft-neomedallion` | `us-central1` | Staging de builds e persistência resiliente de diagnósticos e pareceres |
+| **Google Cloud Firestore** | Banco `(default)` em modo Native | `nam5` | Persistência NoSQL de histórico de auditoria e governança Human-in-the-Loop |
+| **Google Artifact Registry** | `repo-neomedallion` | `us-central1` | Repositório Docker com a imagem do contêiner `neomedallion:latest` |
+| **Google Cloud Build** | Pipeline automatizado | `us-central1` | Build e empacotamento automatizado dos contêineres Docker |
+
+### Comandos Úteis via `gcloud` CLI
+
+Para que ferramentas locais se autentiquem e interajam com os recursos no GCP:
+
 ```bash
+# 1. Autenticação e definição do projeto ativo
 gcloud auth application-default login
 gcloud config set project gft-brazil-bu-gcp
+
+# 2. Listar os serviços em execução no Cloud Run
+gcloud run services list --region us-central1
+
+# 3. Iniciar proxy local para a Workstation Frontend (Streamlit)
+gcloud run services proxy neomedallion-frontend --region us-central1 --port 8501
+
+# 4. Iniciar proxy local para a API Backend (FastAPI / Swagger)
+gcloud run services proxy neomedallion-backend --region us-central1 --port 8080
+
+# 5. Listar imagens de contêiner no Artifact Registry
+gcloud artifacts docker images list us-central1-docker.pkg.dev/gft-brazil-bu-gcp/repo-neomedallion
+
+# 6. Inspecionar arquivos no bucket do Cloud Storage
+gcloud storage ls gs://hackathon-gft-neomedallion
 ```
