@@ -58,26 +58,29 @@ O sistema ingere (ou coleta autonomamente via Google Search) o fluxo de notícia
 
 ### Fluxo Multi-Agentes (Agentic RAG)
 
+![Fluxo Multi-Agentes da Solução](docs/imagens/fluxo_agentes.png)
+
+<details>
+<summary><b>Código Mermaid do Fluxo (clique para expandir)</b></summary>
+
 ```mermaid
-graph TD
-    A[Notícia / Fato Relevante] --> B[Agente 1: Triagem]
-    B -->|Irrelevante| Z[Descartado / Ruído]
-    B -->|Material| C[Agente 2: Investigador]
-    
-    C -->|Gera Search Query| D[(Vertex AI Search: Data Store)]
-    
-    D -->|Recupera Contexto da Tese| E[Agente 3: Analista Líder]
+flowchart TD
+    A["Entrada: Notícia ou Fato Relevante"] --> B["Agente 1: Triagem (Gemini 2.5 Flash)"]
+    B -->|"Irrelevante"| Z["Descartado (Ruído de Mercado)"]
+    B -->|"Material"| C["Agente 2: Investigador (Query Generation)"]
+    C -->|"Gera Search Query"| D[("Google Vertex AI Search: Data Store")]
+    D -->|"Contexto Fundamentalista"| E["Agente 3: Analista Líder (Gemini 2.5 Pro)"]
     A --> E
-    
-    E -->|Gera Diagnóstico| F{Classificação de Risco}
-    F -->|Risco ALTO / MUITO ALTO| G[Pendente de Revisão HITL]
-    F -->|Risco Médio / Baixo / Neutro| K[Sem Pendência]
-    
-    G -->|Parecer do Analista| I[Confirmação / Descarte Humano]
-    I -->|Persiste Parecer| H[(Google Cloud Firestore)]
-    K -->|Persiste Registro| H
-    H --> J[Workstation Feed]
+    E -->|"Auditoria Cruzada"| F{"Classificação de Risco"}
+    F -->|"ALTO / MUITO ALTO"| G["Pendente de Parecer (Revisão HITL)"]
+    F -->|"MÉDIO / BAIXO / NEUTRO"| K["Sem Pendência (Aprovado Auto)"]
+    G -->|"Validação Humana"| I["Analista de Equity Research (Parecer Obrigatório)"]
+    I -->|"Persiste Parecer"| H[("Google Cloud Firestore & Cloud Storage")]
+    K -->|"Persiste Registro"| H
+    H --> J["Workstation Feed (Interface Streamlit)"]
 ```
+
+</details>
 
 **Descrição do fluxo:** A aplicação segue princípios de Clean Architecture:
 1. `src/frontend/app.py`: Interface de Workstation (Streamlit) com abas para simulação e auditoria live, incluindo governança Human-in-the-Loop.
@@ -196,7 +199,8 @@ Todos os documentos e entregáveis do projeto estão disponíveis e organizados 
 │   │   ├── apresentacao.pptx  (slides do pitch)
 │   │   └── apresentacao.pdf   (versão PDF da apresentação)
 │   ├── imagens/               → diagramas e prints de tela da interface
-│   │   ├── arquitetura.png    (referenciada no README)
+│   │   ├── arquitetura.png    (diagrama de arquitetura da solução)
+│   │   ├── fluxo_agentes.png  (fluxo do pipeline multi-agentes)
 │   │   └── smc_thesis_monitor.png
 │   ├── video/
 │   │   ├── link.md            → LINK do vídeo (YouTube não-listado)
